@@ -97,6 +97,21 @@ export function AddCustomerPage() {
   }
 
   const onSubmit = async (data) => {
+    if (!data.paid_amount || data.paid_amount < 0) {
+      toast.error('Valid Paid Amount is required')
+      return
+    }
+
+    if (Number(data.paid_amount) > Number(data.amount)) {
+      toast.error('Paid Amount cannot be greater than Total Amount')
+      return
+    }
+
+    if (!/^\d{10}$/.test(data.phone)) {
+      toast.error('Phone number must be exactly 10 digits')
+      return
+    }
+
     setLoading(true)
     try {
       // 1. Add Customer

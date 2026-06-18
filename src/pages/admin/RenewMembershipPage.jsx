@@ -84,13 +84,15 @@ export function RenewMembershipPage() {
       return
     }
 
+    if (Number(formData.paid_amount) > Number(formData.amount)) {
+      toast.error('Paid Amount cannot be greater than Total Amount')
+      return
+    }
+
     setSaving(true)
     try {
-      // 1. Mark existing active memberships as expired (optional, depending on business logic, but good practice if renewing early)
-      const activeMemberships = customer.memberships?.filter(m => m.status === 'active') || []
-      for (const m of activeMemberships) {
-        await updateMembershipStatus(m.id, 'expired')
-      }
+      // 1. We no longer expire existing active memberships. 
+      // The new membership will simply act as a consecutive active period.
 
       // 2. Add New Membership
       const endDate = calculateEndDate(formData.start_date, formData.durationDays)
