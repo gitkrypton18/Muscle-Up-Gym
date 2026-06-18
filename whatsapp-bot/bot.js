@@ -107,10 +107,21 @@ async function runDailyMessaging() {
       return end.getTime() === today.getTime();
     });
 
-    console.log(`Found: ${unpaidData?.length || 0} unpaid, ${expiringMembers.length} expiring in 3 days, ${expiredToday.length} expiring today.`);
+    const fiveDaysFromNow = new Date(today);
+    fiveDaysFromNow.setDate(today.getDate() + 5);
+    const is15th = today.getDate() === 15;
+
+    // Filter Unpaid to only send on 15th or 5 days before expiry
+    const targetUnpaid = (unpaidData || []).filter(p => {
+      const end = new Date(p.memberships.end_date);
+      end.setHours(0,0,0,0);
+      return is15th || end.getTime() === fiveDaysFromNow.getTime();
+    });
+
+    console.log(`Found: ${targetUnpaid.length} unpaid to notify, ${expiringMembers.length} expiring in 3 days, ${expiredToday.length} expiring today.`);
 
     // Send Unpaid Reminders
-    for (const p of (unpaidData || [])) {
+    for (const p of targetUnpaid) {
       const phone = formatPhoneNumber(p.memberships.customers.phone);
       const name = p.memberships.customers.name.split(' ')[0];
       const msg = `Hi ${name}, this is a gentle reminder that you have a pending due of ₹${p.due_amount} for your gym membership. Please clear it at the earliest. Thank you! 💪`;
