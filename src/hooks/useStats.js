@@ -30,11 +30,20 @@ export function useStats() {
         .eq('status', 'active')
         .eq('customers.is_deleted', false)
 
-      // Expiring Soon (from active_members view - already filters non-deleted)
-      const { data: expiringData, count: expiringSoon } = await supabase
+      // Expiring Memberships (from view)
+      const { data: rawExpiringData } = await supabase
         .from('active_members')
         .select('*', { count: 'exact' })
         .eq('expiry_status', 'expiring')
+
+      // Healthy Memberships (from view) to filter out false-positives
+      const { data: healthyData } = await supabase
+        .from('active_members')
+        .select('id')
+        .eq('expiry_status', 'healthy')
+
+      const healthyIds = new Set((healthyData || []).map(m => m.id))
+      const expiringData = (rawExpiringData || []).filter(m => !healthyIds.has(m.id))
 
       // Expired Memberships - only those whose customer has NOT renewed
       // (i.e., customer has NO active membership currently)
@@ -149,7 +158,7 @@ export function useStats() {
       setStats({
         totalMembers: totalMembers || 0,
         activeMembers: activeMembers || 0,
-        expiringSoon: expiringSoon || 0,
+        expiringSoon: expiringData.length,
         expired: uniqueExpiredMembers.length,
         paymentPending,
         newThisMonth: newThisMonth || 0,

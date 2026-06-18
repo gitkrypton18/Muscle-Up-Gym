@@ -29,8 +29,15 @@ export function CustomerDetailPage() {
   if (loading) return <LoadingSpinner />
   if (!customer) return <div className="text-center py-12">Customer not found.</div>
 
-  const memberships = customer.memberships?.sort((a, b) => new Date(b.start_date) - new Date(a.start_date)) || []
-  const currentMembership = memberships.find(m => m.status === 'active') || memberships[0]
+  const memberships = customer.memberships?.sort((a, b) => new Date(b.end_date) - new Date(a.end_date)) || []
+  
+  const todayStr = new Date().toISOString().split('T')[0]
+  // Strictly find the plan that covers today
+  let currentMembership = memberships.find(m => m.status === 'active' && m.start_date <= todayStr && m.end_date >= todayStr)
+  // Fallback to the latest active plan (if future-only), or just the latest plan
+  if (!currentMembership) {
+    currentMembership = memberships.find(m => m.status === 'active') || memberships[0]
+  }
   const allPayments = memberships.flatMap(m => m.payments || []).sort((a, b) => new Date(b.payment_date) - new Date(a.payment_date))
 
   const handleDeleteCustomer = async () => {
