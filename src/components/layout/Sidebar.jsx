@@ -18,7 +18,7 @@ export function Sidebar() {
   return (
     <div className="flex flex-col h-full w-[260px] bg-card border-r border-border text-foreground">
       {/* Logo */}
-      <div className="p-6 flex items-center gap-3">
+      <NavLink to="/admin/dashboard" className="p-6 flex items-center gap-3 hover:opacity-80 transition-opacity">
         <div className="w-12 h-12 rounded-lg overflow-hidden border border-primary/50 shadow-[0_0_15px_rgba(212,133,44,0.3)] bg-black shrink-0">
           <img src={gymLogo} alt="Gym Logo" className="w-full h-full object-cover" />
         </div>
@@ -28,7 +28,7 @@ export function Sidebar() {
             Fitness
           </span>
         </h1>
-      </div>
+      </NavLink>
 
       {/* Nav Links */}
       <div className="flex-1 px-4 py-2 space-y-1">
