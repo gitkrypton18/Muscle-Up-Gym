@@ -10,8 +10,14 @@ export function useCustomers() {
     try {
       setLoading(true)
       const { data, error } = await supabase
-        .from('active_members')
-        .select('*')
+        .from('customers')
+        .select(`
+          *,
+          memberships (
+            id, plan_name, start_date, end_date, status
+          )
+        `)
+        .eq('is_deleted', false)
         .order('name')
       
       if (error) throw error
@@ -29,10 +35,27 @@ export function useCustomers() {
         dueAmountMap.set(p.membership_id, p.due_amount)
       })
 
-      const mergedData = (data || []).map(member => ({
-        ...member,
-        due_amount: dueAmountMap.get(member.membership_id) || 0
-      }))
+      const todayStr = new Date().toISOString().split('T')[0]
+      const mergedData = (data || []).map(customer => {
+        const memberships = customer.memberships?.sort((a, b) => new Date(b.end_date) - new Date(a.end_date)) || []
+        
+        let currentMembership = memberships.find(m => m.status === 'active' && m.start_date <= todayStr && m.end_date >= todayStr)
+        if (!currentMembership) {
+          currentMembership = memberships.find(m => m.status === 'active') || memberships[0]
+        }
+
+        // We explicitly delete memberships array from top level to match old structure, 
+        // but it's fine to keep it.
+        return {
+          ...customer,
+          plan_name: currentMembership?.plan_name || 'No Plan',
+          start_date: currentMembership?.start_date || '',
+          end_date: currentMembership?.end_date || '',
+          status: currentMembership?.status || 'expired',
+          membership_id: currentMembership?.id,
+          due_amount: currentMembership ? (dueAmountMap.get(currentMembership.id) || 0) : 0
+        }
+      })
 
       setCustomers(mergedData)
     } catch (err) {

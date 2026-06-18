@@ -123,22 +123,40 @@ async function seed() {
         paidAmount = 1000;
         break;
       case 'renewed_recently':
-        // Old expired membership
-        const oldStart = new Date(today);
-        oldStart.setDate(today.getDate() - 40);
-        const oldEnd = addDays(oldStart, 30);
-        
-        // New active membership (renewed today)
-        startDate = new Date(today);
-        endDate = addDays(startDate, 30);
-        
-        secondMembership = {
-          start_date: oldStart.toISOString().split('T')[0],
-          end_date: oldEnd,
-          status: 'expired',
-          amount: 1500,
-          paid_amount: 1500
-        };
+        if (i % 2 === 0) {
+          // Edge Case 1: Old expired membership, renewed today
+          const oldStart = new Date(today);
+          oldStart.setDate(today.getDate() - 40);
+          const oldEnd = addDays(oldStart, 30);
+          
+          startDate = new Date(today);
+          endDate = addDays(startDate, 30);
+          
+          secondMembership = {
+            start_date: oldStart.toISOString().split('T')[0],
+            end_date: oldEnd,
+            status: 'expired',
+            amount: 1500,
+            paid_amount: 1500
+          };
+        } else {
+          // Edge Case 2: Early Renewal (Current is still active, Upcoming is queued)
+          const currentStart = new Date(today);
+          currentStart.setDate(today.getDate() - 25);
+          const currentEnd = addDays(currentStart, 30); // 5 days left
+
+          startDate = new Date(currentEnd);
+          startDate.setDate(startDate.getDate() + 1); // Starts tomorrow
+          endDate = addDays(startDate, 30);
+          
+          secondMembership = {
+            start_date: currentStart.toISOString().split('T')[0],
+            end_date: currentEnd,
+            status: 'active',
+            amount: 1500,
+            paid_amount: 1500
+          };
+        }
         break;
     }
 
