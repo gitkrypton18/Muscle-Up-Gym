@@ -28,6 +28,7 @@ export function useStats() {
         .from('memberships')
         .select('*, customers!inner(is_deleted)', { count: 'exact', head: true })
         .eq('status', 'active')
+        .gte('end_date', new Date().toISOString().split('T')[0])
         .eq('customers.is_deleted', false)
 
       // Expiring Memberships (from view)
@@ -58,6 +59,7 @@ export function useStats() {
         .from('memberships')
         .select('customer_id')
         .eq('status', 'active')
+        .gte('end_date', new Date().toISOString().split('T')[0])
 
       const activeCustomerIds = new Set((activeMembershipCustomerIds || []).map(m => m.customer_id))
 
