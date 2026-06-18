@@ -168,6 +168,23 @@ export function useCustomers() {
     }
   }
 
+  const deletePayment = async (paymentId) => {
+    try {
+      setLoading(true)
+      const { error } = await supabase
+        .from('payments')
+        .delete()
+        .eq('id', paymentId)
+      if (error) throw error
+      return { error: null }
+    } catch (err) {
+      setError(err.message)
+      return { error: err }
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return {
     customers,
     loading,
@@ -178,6 +195,7 @@ export function useCustomers() {
     updateCustomer,
     deleteCustomer,
     deleteMembership,
-    settlePaymentDue
+    settlePaymentDue,
+    deletePayment
   }
 }

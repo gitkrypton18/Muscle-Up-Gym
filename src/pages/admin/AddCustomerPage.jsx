@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -19,7 +19,7 @@ import { Card, CardContent } from '@/components/ui/card'
 const customerSchema = z.object({
   // Step 1
   name: z.string().min(2, 'Name is required'),
-  phone: z.string().min(10, 'Valid phone number is required'),
+  phone: z.string().regex(/^\d{10}$/, 'Phone number must be exactly 10 digits'),
   whatsapp: z.string().optional(),
   email: z.union([z.string().email('Invalid email'), z.literal('')]).optional(),
   age: z.coerce.number().optional().or(z.literal('')),
@@ -44,6 +44,10 @@ const customerSchema = z.object({
 
 export function AddCustomerPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const prefillName = searchParams.get('name') || ''
+  const prefillPhone = searchParams.get('phone') || ''
+  
   const { addCustomer } = useCustomers()
   const { addMembership } = useMemberships()
   const { addPayment } = usePayments()
@@ -54,12 +58,22 @@ export function AddCustomerPage() {
   const { register, handleSubmit, control, trigger, watch, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(customerSchema),
     defaultValues: {
-      name: '', phone: '', whatsapp: '', email: '', address: '',
-      age: '', gender: 'Male', height: '', weight: '',
-      medical: '', emergency_name: '', emergency_phone: '', notes: '',
-      plan_name: PLANS[1].name,
-      amount: PLANS[1].amount,
-      durationDays: PLANS[1].durationDays,
+      name: prefillName, 
+      phone: prefillPhone, 
+      whatsapp: '', 
+      email: '', 
+      address: '',
+      age: '', 
+      gender: 'Male', 
+      height: '', 
+      weight: '',
+      medical: '', 
+      emergency_name: '', 
+      emergency_phone: '', 
+      notes: '',
+      plan_name: PLANS[0].name,
+      amount: PLANS[0].amount,
+      durationDays: PLANS[0].durationDays,
       start_date: new Date().toISOString().split('T')[0],
       paid_amount: PLANS[1].amount,
       payment_method: 'Cash',

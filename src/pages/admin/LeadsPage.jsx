@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Plus, Trash2, Loader2, MessageCircle, Phone } from 'lucide-react'
+import { Plus, Trash2, Loader2, MessageCircle, Phone, UserPlus } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useLeads } from '@/hooks/useLeads'
 import { Button } from '@/components/ui/button'
@@ -18,6 +19,7 @@ export function LeadsPage() {
   const [openDialog, setOpenDialog] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [formData, setFormData] = useState({ name: '', phone: '', message: '' })
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchLeads()
@@ -157,6 +159,20 @@ export function LeadsPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end items-center gap-2">
+                        {lead.status !== 'converted' && (
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="h-8 border-green-500/30 text-green-500 hover:bg-green-500/10"
+                            onClick={() => {
+                              handleStatusChange(lead.id, 'converted')
+                              navigate(`/admin/customers/add?name=${encodeURIComponent(lead.name)}&phone=${encodeURIComponent(lead.phone)}`)
+                            }}
+                          >
+                            <UserPlus className="w-3.5 h-3.5 mr-1.5" />
+                            Convert
+                          </Button>
+                        )}
                         <ActionButtons phone={lead.phone} whatsapp={lead.phone} />
                         <Button variant="ghost" size="icon" onClick={() => handleDelete(lead.id)} className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-500/10">
                           <Trash2 className="w-4 h-4" />

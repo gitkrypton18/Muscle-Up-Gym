@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge'
 export function CustomerDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { fetchCustomerById, deleteCustomer, deleteMembership, settlePaymentDue } = useCustomers()
+  const { fetchCustomerById, deleteCustomer, deleteMembership, settlePaymentDue, deletePayment } = useCustomers()
   const [customer, setCustomer] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -206,9 +206,27 @@ export function CustomerDetailPage() {
                           >
                             Settle Due
                           </Button>
+                          <Button size="icon" variant="outline" className="h-6 w-6 border-red-500/20 text-red-500 hover:bg-red-500/10" onClick={async () => {
+                            if (window.confirm('Delete this payment record? This cannot be undone.')) {
+                              await deletePayment(payment.id)
+                              window.location.reload()
+                            }
+                          }}>
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
                         </div>
                       ) : (
-                        <Badge className="bg-green-500/15 text-green-400 border-green-500/30 text-xs self-start sm:self-center">Fully Paid</Badge>
+                        <div className="flex items-center gap-2 self-start sm:self-center">
+                          <Badge className="bg-green-500/15 text-green-500 border-green-500/30 text-xs">Paid</Badge>
+                          <Button size="icon" variant="outline" className="h-6 w-6 border-red-500/20 text-red-500 hover:bg-red-500/10" onClick={async () => {
+                            if (window.confirm('Delete this payment record? This cannot be undone.')) {
+                              await deletePayment(payment.id)
+                              window.location.reload()
+                            }
+                          }}>
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
                       )}
                     </div>
                   ))}
