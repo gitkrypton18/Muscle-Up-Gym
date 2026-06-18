@@ -61,16 +61,16 @@ export function CustomerDetailPage() {
         <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="text-muted-foreground -ml-2">
           <ArrowLeft className="w-4 h-4 mr-1" /> Back
         </Button>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h2 className="text-xl sm:text-2xl font-bold text-foreground">Member Profile</h2>
           <div className="flex gap-2 w-full sm:w-auto">
-            <Button variant="outline" asChild className="border-border hover:bg-secondary flex-1 sm:flex-none text-sm h-9">
+            <Button variant="outline" asChild className="border-border hover:bg-secondary flex-1 sm:flex-none text-sm h-10 flex items-center justify-center">
               <Link to={`/admin/customers/${id}/edit`}>
-                <Edit className="w-4 h-4 mr-1.5" /> Edit
+                <Edit className="w-4 h-4 mr-2" /> Edit
               </Link>
             </Button>
-            <Button variant="outline" onClick={handleDeleteCustomer} className="border-red-500/20 text-red-500 hover:bg-red-500/10 flex-1 sm:flex-none text-sm h-9">
-              <Trash2 className="w-4 h-4 mr-1.5" /> Delete
+            <Button variant="outline" onClick={handleDeleteCustomer} className="border-red-500/20 text-red-500 hover:bg-red-500/10 flex-1 sm:flex-none text-sm h-10 flex items-center justify-center">
+              <Trash2 className="w-4 h-4 mr-2" /> Delete
             </Button>
           </div>
         </div>
@@ -168,11 +168,11 @@ export function CustomerDetailPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-2 mt-4 pt-3 border-t border-border/50">
-                  <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground flex-1 h-9 text-sm">
+                <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border/50">
+                  <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground flex-1 h-10 text-sm font-semibold flex justify-center items-center">
                     <Link to={`/admin/customers/${id}/renew`}>Modify / Renew</Link>
                   </Button>
-                  <Button size="icon" variant="outline" onClick={() => handleDeleteMembership(currentMembership.id)} className="border-red-500/20 text-red-500 hover:bg-red-500/10 shrink-0 h-9 w-9" title="Delete Membership">
+                  <Button size="icon" variant="outline" onClick={() => handleDeleteMembership(currentMembership.id)} className="border-red-500/20 text-red-500 hover:bg-red-500/10 shrink-0 h-10 w-10 flex items-center justify-center" title="Delete Membership">
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>

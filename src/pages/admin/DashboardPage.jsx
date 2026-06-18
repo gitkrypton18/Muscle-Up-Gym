@@ -120,15 +120,15 @@ export function DashboardPage() {
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-foreground text-sm truncate">{member.name}</p>
-                      <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                        <span className="bg-secondary text-foreground text-[10px] px-1.5 py-0.5 rounded border border-border">{member.plan_name}</span>
+                      <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                        <span className="bg-secondary text-foreground text-[10px] px-2 py-0.5 rounded-md border border-border">{member.plan_name}</span>
                         {isUnpaid && (
-                          <Badge className="bg-red-500/15 text-red-400 border-red-500/30 text-[10px] px-1.5 py-0">
+                          <Badge className="bg-red-500/15 text-red-400 border-red-500/30 text-[10px] px-2 py-0.5 rounded-md leading-none">
                             ₹{member.due_amount} Due
                           </Badge>
                         )}
                         {isExpired ? (
-                          <Badge className="bg-red-500/15 text-red-400 border-red-500/30 text-[10px] px-1.5 py-0">Expired</Badge>
+                          <Badge className="bg-red-500/15 text-red-400 border-red-500/30 text-[10px] px-2 py-0.5 rounded-md leading-none">Expired</Badge>
                         ) : (
                           <ExpiryBadge daysRemaining={daysLeft} />
                         )}
