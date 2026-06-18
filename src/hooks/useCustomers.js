@@ -15,24 +15,28 @@ export function useCustomers() {
           *,
           memberships (
             id, plan_name, start_date, end_date, status
-          )
+          ),
+          partner:customers!partner_id (name)
         `)
         .eq('is_deleted', false)
         .order('name')
       
       if (error) throw error
 
-      // Fetch pending payments
+      // Fetch pending payments with customer_id
       const { data: paymentsData, error: paymentsError } = await supabase
         .from('payments')
-        .select('membership_id, due_amount')
+        .select(`due_amount, memberships!inner(customer_id)`)
         .gt('due_amount', 0)
 
       if (paymentsError) throw paymentsError
 
-      const dueAmountMap = new Map()
+      const dueAmountByCustomer = new Map()
       paymentsData?.forEach(p => {
-        dueAmountMap.set(p.membership_id, p.due_amount)
+        if (p.memberships?.customer_id) {
+          const cId = p.memberships.customer_id
+          dueAmountByCustomer.set(cId, (dueAmountByCustomer.get(cId) || 0) + Number(p.due_amount))
+        }
       })
 
       const todayStr = new Date().toISOString().split('T')[0]
@@ -53,7 +57,8 @@ export function useCustomers() {
           end_date: currentMembership?.end_date || '',
           status: currentMembership?.status || 'expired',
           membership_id: currentMembership?.id,
-          due_amount: currentMembership ? (dueAmountMap.get(currentMembership.id) || 0) : 0
+          due_amount: dueAmountByCustomer.get(customer.id) || 0,
+          partner_name: customer.partner?.name || null
         }
       })
 
@@ -66,7 +71,7 @@ export function useCustomers() {
     }
   }, [])
 
-  const fetchCustomerById = async (id) => {
+  const fetchCustomerById = useCallback(async (id) => {
     try {
       setLoading(true)
       const { data, error } = await supabase
@@ -89,9 +94,9 @@ export function useCustomers() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const addCustomer = async (customerData) => {
+  const addCustomer = useCallback(async (customerData) => {
     try {
       setLoading(true)
       const { data, error } = await supabase
@@ -108,9 +113,9 @@ export function useCustomers() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const updateCustomer = async (id, updates) => {
+  const updateCustomer = useCallback(async (id, updates) => {
     try {
       setLoading(true)
       const { data, error } = await supabase
@@ -128,13 +133,13 @@ export function useCustomers() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const deleteCustomer = async (id) => {
+  const deleteCustomer = useCallback(async (id) => {
     return updateCustomer(id, { is_deleted: true })
-  }
+  }, [updateCustomer])
 
-  const deleteMembership = async (membershipId) => {
+  const deleteMembership = useCallback(async (membershipId) => {
     try {
       setLoading(true)
       const { error } = await supabase
@@ -142,14 +147,16 @@ export function useCustomers() {
         .delete()
         .eq('id', membershipId)
       if (error) throw error
+      return { error: null }
     } catch (err) {
       setError(err.message)
+      return { error: err }
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const settlePaymentDue = async (paymentId, totalAmount) => {
+  const settlePaymentDue = useCallback(async (paymentId, totalAmount) => {
     try {
       setLoading(true)
       const { data, error } = await supabase
@@ -166,9 +173,9 @@ export function useCustomers() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const deletePayment = async (paymentId) => {
+  const deletePayment = useCallback(async (paymentId) => {
     try {
       setLoading(true)
       const { error } = await supabase
@@ -183,7 +190,7 @@ export function useCustomers() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   return {
     customers,

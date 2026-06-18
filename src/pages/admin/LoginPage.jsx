@@ -133,6 +133,16 @@ export function LoginPage() {
             </form>
           </CardContent>
         </Card>
+        
+        {/* Developer Credit */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center text-xs text-muted-foreground w-full">
+          <p>Developed by <span className="font-semibold text-foreground">Kalpit Nagar</span> © 2026</p>
+          <div className="flex justify-center items-center gap-2 mt-1">
+            <a href="https://github.com/gitkrypton18" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">GitHub</a>
+            <span>•</span>
+            <a href="https://linkedin.com/in/kalpitnagar312" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">LinkedIn</a>
+          </div>
+        </div>
       </div>
     </div>
   )

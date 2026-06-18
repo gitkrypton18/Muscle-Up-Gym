@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 
 export function useMemberships() {
   const [loading, setLoading] = useState(false)
 
-  const addMembership = async (membershipData) => {
+  const addMembership = useCallback(async (membershipData) => {
     try {
       setLoading(true)
       const { data, error } = await supabase
@@ -21,9 +21,9 @@ export function useMemberships() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const fetchMembershipsByCustomer = async (customerId) => {
+  const fetchMembershipsByCustomer = useCallback(async (customerId) => {
     try {
       setLoading(true)
       const { data, error } = await supabase
@@ -43,9 +43,9 @@ export function useMemberships() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const updateMembershipStatus = async (id, status) => {
+  const updateMembershipStatus = useCallback(async (id, status) => {
     try {
       setLoading(true)
       const { data, error } = await supabase
@@ -63,7 +63,7 @@ export function useMemberships() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   return {
     loading,

@@ -1,30 +1,40 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { Edit, History, Calendar, CreditCard, Activity, Trash2, ArrowLeft } from 'lucide-react'
+import { Edit, History, Calendar, CreditCard, Activity, Trash2, ArrowLeft, Users, Unlink, Target, Mail, HeartPulse, Clock, Droplets, AlertTriangle } from 'lucide-react'
 import { useCustomers } from '@/hooks/useCustomers'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { ActionButtons } from '@/components/shared/ActionButtons'
 import { ExpiryBadge } from '@/components/shared/ExpiryBadge'
-import { calculateDaysRemaining, getInitials, formatCurrency } from '@/lib/utils'
+import { calculateDaysRemaining, getInitials, formatCurrency, generateWhatsAppMessage } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 
 export function CustomerDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { fetchCustomerById, deleteCustomer, deleteMembership, settlePaymentDue, deletePayment } = useCustomers()
+  const { fetchCustomerById, deleteCustomer, deleteMembership, settlePaymentDue, deletePayment, updateCustomer } = useCustomers()
   const [customer, setCustomer] = useState(null)
+  const [partner, setPartner] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [paymentToDelete, setPaymentToDelete] = useState(null)
+
+  const reloadData = async () => {
+    setLoading(true)
+    const data = await fetchCustomerById(id)
+    setCustomer(data)
+    if (data?.partner_id) {
+      const pData = await fetchCustomerById(data.partner_id)
+      setPartner(pData)
+    } else {
+      setPartner(null)
+    }
+    setLoading(false)
+  }
 
   useEffect(() => {
-    async function loadData() {
-      const data = await fetchCustomerById(id)
-      setCustomer(data)
-      setLoading(false)
-    }
-    loadData()
+    reloadData()
   }, [id, fetchCustomerById])
 
   if (loading) return <LoadingSpinner />
@@ -41,6 +51,9 @@ export function CustomerDetailPage() {
   }
   const allPayments = memberships.flatMap(m => m.payments || []).sort((a, b) => new Date(b.payment_date) - new Date(a.payment_date))
 
+  const totalDueAmount = allPayments.reduce((sum, p) => sum + (p.due_amount || 0), 0)
+  const daysLeft = currentMembership ? calculateDaysRemaining(currentMembership.end_date) : 0
+
   const handleDeleteCustomer = async () => {
     if (window.confirm(`Are you sure you want to delete ${customer.name}? This action cannot be undone.`)) {
       await deleteCustomer(id)
@@ -48,10 +61,29 @@ export function CustomerDetailPage() {
     }
   }
 
+  const handleUnlinkCouple = async () => {
+    if (!partner) return
+    if (window.confirm(`Are you sure you want to unlink ${customer.name} and ${partner.name}? They will no longer share a couple membership.`)) {
+      try {
+        await updateCustomer(customer.id, { partner_id: null })
+        await updateCustomer(partner.id, { partner_id: null })
+        toast.success('Couple unlinked successfully')
+        reloadData()
+      } catch (e) {
+        toast.error('Failed to unlink couple')
+      }
+    }
+  }
+
   const handleDeleteMembership = async (membershipId) => {
     if (window.confirm('Are you sure you want to delete this membership record?')) {
-      await deleteMembership(membershipId)
-      window.location.reload()
+      const { error } = await deleteMembership(membershipId)
+      if (error) {
+        toast.error(error.message || 'Failed to delete membership. Please delete its payments first.')
+      } else {
+        toast.success('Membership deleted successfully.')
+        reloadData()
+      }
     }
   }
 
@@ -64,13 +96,18 @@ export function CustomerDetailPage() {
         </Button>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h2 className="text-xl sm:text-2xl font-bold text-foreground">Member Profile</h2>
-          <div className="flex gap-2 w-full sm:w-auto">
-            <Button variant="outline" asChild className="border-border hover:bg-secondary flex-1 sm:flex-none text-sm h-10 flex items-center justify-center">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 w-full sm:w-auto">
+            {partner && (
+              <Button variant="outline" onClick={handleUnlinkCouple} className="border-amber-500/20 text-amber-500 hover:bg-amber-500/10 w-full sm:w-auto text-sm h-10 col-span-2 sm:col-span-1">
+                <Unlink className="w-4 h-4 mr-2" /> Unlink Couple
+              </Button>
+            )}
+            <Button variant="outline" asChild className="border-border hover:bg-secondary w-full sm:w-auto text-sm h-10">
               <Link to={`/admin/customers/${id}/edit`}>
                 <Edit className="w-4 h-4 mr-2" /> Edit
               </Link>
             </Button>
-            <Button variant="outline" onClick={handleDeleteCustomer} className="border-red-500/20 text-red-500 hover:bg-red-500/10 flex-1 sm:flex-none text-sm h-10 flex items-center justify-center">
+            <Button variant="outline" onClick={handleDeleteCustomer} className="border-red-500/20 text-red-500 hover:bg-red-500/10 w-full sm:w-auto text-sm h-10">
               <Trash2 className="w-4 h-4 mr-2" /> Delete
             </Button>
           </div>
@@ -80,21 +117,55 @@ export function CustomerDetailPage() {
       {/* Profile Header Card - Mobile optimized */}
       <Card className="bg-card border-border">
         <CardContent className="p-4 sm:p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center text-primary font-bold text-2xl sm:text-3xl shrink-0">
-              {getInitials(customer.name)}
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-xl sm:text-2xl font-bold text-foreground truncate">{customer.name}</h3>
-              <p className="text-muted-foreground text-sm">{customer.phone}</p>
-              <div className="mt-2">
-                <ActionButtons phone={customer.phone} whatsapp={customer.whatsapp} />
+          <div className={`flex flex-col sm:flex-row ${partner ? 'sm:items-stretch sm:divide-x sm:divide-border' : 'items-center'} gap-6`}>
+            
+            {/* Primary Member */}
+            <div className="flex items-center gap-4 flex-1">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center text-primary font-bold text-2xl sm:text-3xl shrink-0">
+                {getInitials(customer.name)}
+              </div>
+              <div className="min-w-0 flex-1">
+                {partner && <Badge variant="outline" className="mb-1 text-[10px] bg-primary/10 text-primary border-primary/20">Primary</Badge>}
+                <h3 className="text-xl sm:text-2xl font-bold text-foreground truncate">{customer.name}</h3>
+                <p className="text-muted-foreground text-sm">{customer.phone}</p>
+                {customer.email && <p className="text-muted-foreground text-xs flex items-center mt-0.5"><Mail className="w-3 h-3 mr-1" />{customer.email}</p>}
+                <div className="mt-2">
+                  <ActionButtons 
+                    phone={customer.phone} 
+                    whatsapp={customer.whatsapp} 
+                    message={generateWhatsAppMessage({ name: customer.name, daysLeft, dueAmount: totalDueAmount })}
+                  />
+                </div>
               </div>
             </div>
+
+            {/* Partner Member */}
+            {partner && (
+              <div className="flex items-center gap-4 flex-1 pt-6 border-t border-border sm:pt-0 sm:border-t-0 sm:pl-6">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center text-primary font-bold text-2xl sm:text-3xl shrink-0">
+                  {getInitials(partner.name)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <Badge variant="outline" className="mb-1 text-[10px] bg-primary/10 text-primary border-primary/20">Partner</Badge>
+                  <h3 className="text-xl sm:text-2xl font-bold text-foreground truncate">
+                    <Link to={`/admin/customers/${partner.id}`} className="hover:underline">{partner.name}</Link>
+                  </h3>
+                  <p className="text-muted-foreground text-sm">{partner.phone}</p>
+                  {partner.email && <p className="text-muted-foreground text-xs flex items-center mt-0.5"><Mail className="w-3 h-3 mr-1" />{partner.email}</p>}
+                  <div className="mt-2">
+                    <ActionButtons 
+                      phone={partner.phone} 
+                      whatsapp={partner.whatsapp} 
+                      message={generateWhatsAppMessage({ name: partner.name, daysLeft, dueAmount: totalDueAmount })}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Quick info grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 pt-5 border-t border-border">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-border">
             <div>
               <p className="text-xs text-muted-foreground">Age</p>
               <p className="text-sm font-medium text-foreground">{customer.age || 'N/A'}</p>
@@ -114,6 +185,38 @@ export function CustomerDetailPage() {
           </div>
 
           {/* Extra info */}
+          {customer.fitness_goals && (
+            <div className="mt-4 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+              <p className="text-xs text-primary font-semibold mb-0.5 flex items-center"><Target className="w-3 h-3 mr-1" /> Fitness Goals</p>
+              <p className="text-sm text-foreground">{customer.fitness_goals}</p>
+            </div>
+          )}
+
+          {/* Health & Logistics */}
+          <div className="mt-6 space-y-4">
+            {customer.medical && (
+              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <p className="text-xs text-destructive font-semibold mb-0.5 flex items-center"><AlertTriangle className="w-3 h-3 mr-1" /> Medical Alert</p>
+                <p className="text-sm text-foreground font-medium">{customer.medical}</p>
+              </div>
+            )}
+            
+            <div className="grid grid-cols-2 gap-4">
+              {customer.preferred_batch && (
+                <div className="p-3 bg-secondary/30 rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-0.5 flex items-center"><Clock className="w-3 h-3 mr-1" /> Batch Preference</p>
+                  <p className="text-sm font-medium text-foreground">{customer.preferred_batch}</p>
+                </div>
+              )}
+              {customer.blood_group && (
+                <div className="p-3 bg-secondary/30 rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-0.5 flex items-center"><Droplets className="w-3 h-3 mr-1 text-red-500" /> Blood Group</p>
+                  <p className="text-sm font-medium text-foreground">{customer.blood_group}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
           {customer.address && (
             <div className="mt-4 p-3 bg-secondary/30 rounded-lg">
               <p className="text-xs text-muted-foreground mb-0.5">Address</p>
@@ -132,6 +235,13 @@ export function CustomerDetailPage() {
             <div className="mt-3 p-3 bg-secondary/30 rounded-lg border border-border">
               <p className="text-xs text-muted-foreground mb-0.5">Emergency Contact</p>
               <p className="text-sm font-medium text-foreground">{customer.emergency_name || 'Unknown'} · {customer.emergency_phone || 'No number'}</p>
+            </div>
+          )}
+
+          {customer.notes && (
+            <div className="mt-3 p-3 bg-secondary/30 rounded-lg border border-border">
+              <p className="text-xs text-muted-foreground mb-0.5">General Notes</p>
+              <p className="text-sm text-foreground whitespace-pre-wrap">{customer.notes}</p>
             </div>
           )}
         </CardContent>
@@ -206,36 +316,21 @@ export function CustomerDetailPage() {
                                   toast.error(error.message || 'Failed to settle payment')
                                 } else {
                                   toast.success('Payment settled successfully')
-                                  window.location.reload()
+                                  reloadData()
                                 }
                               }
                             }}
                           >
                             Settle Due
                           </Button>
-                          <Button size="icon" variant="outline" className="h-6 w-6 border-red-500/20 text-red-500 hover:bg-red-500/10" onClick={async () => {
-                            if (window.confirm('Delete this payment record? This cannot be undone.')) {
-                              const { error } = await deletePayment(payment.id)
-                              if (error) {
-                                toast.error(error.message || 'Failed to delete payment')
-                              } else {
-                                toast.success('Payment deleted')
-                                window.location.reload()
-                              }
-                            }
-                          }}>
+                          <Button size="icon" variant="outline" className="h-6 w-6 border-red-500/20 text-red-500 hover:bg-red-500/10" onClick={() => setPaymentToDelete(payment)}>
                             <Trash2 className="w-3 h-3" />
                           </Button>
                         </div>
                       ) : (
                         <div className="flex items-center gap-2 self-start sm:self-center">
                           <Badge className="bg-green-500/15 text-green-500 border-green-500/30 text-xs">Paid</Badge>
-                          <Button size="icon" variant="outline" className="h-6 w-6 border-red-500/20 text-red-500 hover:bg-red-500/10" onClick={async () => {
-                            if (window.confirm('Delete this payment record? This cannot be undone.')) {
-                              await deletePayment(payment.id)
-                              window.location.reload()
-                            }
-                          }}>
+                          <Button size="icon" variant="outline" className="h-6 w-6 border-red-500/20 text-red-500 hover:bg-red-500/10" onClick={() => setPaymentToDelete(payment)}>
                             <Trash2 className="w-3 h-3" />
                           </Button>
                         </div>
@@ -290,6 +385,84 @@ export function CustomerDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Advanced Deletion Modal */}
+      {paymentToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+          <div className="bg-card border border-border w-full max-w-md rounded-2xl shadow-2xl p-6 relative animate-in fade-in zoom-in-95 duration-200">
+            <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4 border border-red-500/30">
+              <AlertTriangle className="w-6 h-6 text-red-500" />
+            </div>
+            <h3 className="text-xl font-bold text-center text-foreground mb-2">Delete Payment Record</h3>
+            <p className="text-center text-sm text-muted-foreground mb-6">
+              You are about to delete a payment of <strong className="text-foreground">₹{paymentToDelete.paid_amount}</strong>. What exactly do you want to delete?
+            </p>
+            
+            <div className="space-y-3">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start h-auto py-3 px-4 border-amber-500/30 hover:bg-amber-500/10 hover:text-amber-500"
+                onClick={async () => {
+                  const { error } = await deletePayment(paymentToDelete.id)
+                  if (error) {
+                    toast.error(error.message || 'Failed to delete payment')
+                  } else {
+                    toast.success('Only payment record was deleted.')
+                    setPaymentToDelete(null)
+                    reloadData()
+                  }
+                }}
+              >
+                <div className="text-left">
+                  <div className="font-bold flex items-center">Delete Payment ONLY</div>
+                  <div className="text-xs opacity-80 font-normal mt-1">Keeps the membership active, just removes this financial record.</div>
+                </div>
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="w-full justify-start h-auto py-3 px-4 border-red-500/30 hover:bg-red-500/10 hover:text-red-500"
+                onClick={async () => {
+                  const { error: payErr } = await deletePayment(paymentToDelete.id)
+                  if (!payErr) {
+                    const memToDelete = memberships.find(m => m.id === paymentToDelete.membership_id)
+                    await deleteMembership(paymentToDelete.membership_id)
+                    
+                    // Delete partner's matching membership if it exists
+                    if (partner && memToDelete) {
+                      const matchingPartnerMem = (partner.memberships || []).find(
+                        m => m.start_date === memToDelete.start_date && m.end_date === memToDelete.end_date
+                      )
+                      if (matchingPartnerMem) {
+                        await deleteMembership(matchingPartnerMem.id)
+                      }
+                    }
+
+                    toast.success('Payment AND Membership deleted.')
+                    setPaymentToDelete(null)
+                    reloadData()
+                  } else {
+                    toast.error(payErr.message || 'Failed to delete payment')
+                  }
+                }}
+              >
+                <div className="text-left">
+                  <div className="font-bold flex items-center text-red-500">Delete Payment AND Membership</div>
+                  <div className="text-xs opacity-80 font-normal mt-1 text-red-400">Completely wipes this plan and payment.</div>
+                </div>
+              </Button>
+            </div>
+            
+            <Button 
+              variant="ghost" 
+              className="w-full mt-4 text-muted-foreground hover:text-foreground"
+              onClick={() => setPaymentToDelete(null)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

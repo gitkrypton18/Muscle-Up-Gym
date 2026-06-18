@@ -15,7 +15,7 @@ import { Card, CardContent } from '@/components/ui/card'
 
 const editCustomerSchema = z.object({
   name: z.string().min(2, 'Name is required'),
-  phone: z.string().min(10, 'Valid phone number is required'),
+  phone: z.string().regex(/^\d{10}$/, 'Phone number must be exactly 10 digits'),
   whatsapp: z.string().optional(),
   email: z.union([z.string().email('Invalid email'), z.literal('')]).optional(),
   age: z.coerce.number().optional().or(z.literal('')),
@@ -23,9 +23,12 @@ const editCustomerSchema = z.object({
   height: z.coerce.number().optional().or(z.literal('')),
   weight: z.coerce.number().optional().or(z.literal('')),
   address: z.string().optional(),
+  preferred_batch: z.string().optional(),
+  blood_group: z.string().optional(),
   medical: z.string().optional(),
   emergency_name: z.string().optional(),
   emergency_phone: z.string().optional(),
+  fitness_goals: z.string().optional(),
   notes: z.string().optional(),
 })
 
@@ -55,9 +58,12 @@ export function EditCustomerPage() {
           gender: data.gender || 'Male',
           height: data.height || '',
           weight: data.weight || '',
+          preferred_batch: data.preferred_batch || 'Flexible',
+          blood_group: data.blood_group || '',
           medical: data.medical || '',
           emergency_name: data.emergency_name || '',
           emergency_phone: data.emergency_phone || '',
+          fitness_goals: data.fitness_goals || '',
           notes: data.notes || ''
         })
       }
@@ -78,9 +84,12 @@ export function EditCustomerPage() {
       gender: data.gender,
       height: data.height ? parseFloat(data.height) : null,
       weight: data.weight ? parseFloat(data.weight) : null,
+      preferred_batch: data.preferred_batch || null,
+      blood_group: data.blood_group || null,
       medical: data.medical || null,
       emergency_name: data.emergency_name || null,
       emergency_phone: data.emergency_phone || null,
+      fitness_goals: data.fitness_goals || null,
       notes: data.notes || null
     })
 
@@ -162,6 +171,50 @@ export function EditCustomerPage() {
                 <Label>Address</Label>
                 <Textarea {...register('address')} className="bg-background border-border resize-none" rows={2} />
               </div>
+              <div className="space-y-2">
+                <Label>Preferred Batch</Label>
+                <Controller
+                  name="preferred_batch"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="bg-background border-border">
+                        <SelectValue placeholder="Select batch" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Morning">Morning</SelectItem>
+                        <SelectItem value="Evening">Evening</SelectItem>
+                        <SelectItem value="Flexible">Flexible</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Blood Group</Label>
+                <Controller
+                  name="blood_group"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="bg-background border-border">
+                        <SelectValue placeholder="Select blood group" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="A+">A+</SelectItem>
+                        <SelectItem value="A-">A-</SelectItem>
+                        <SelectItem value="B+">B+</SelectItem>
+                        <SelectItem value="B-">B-</SelectItem>
+                        <SelectItem value="O+">O+</SelectItem>
+                        <SelectItem value="O-">O-</SelectItem>
+                        <SelectItem value="AB+">AB+</SelectItem>
+                        <SelectItem value="AB-">AB-</SelectItem>
+                        <SelectItem value="">Unknown</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
               <div className="space-y-2 md:col-span-2">
                 <Label>Medical Conditions / History</Label>
                 <Textarea {...register('medical')} className="bg-background border-border resize-none" rows={2} />
@@ -174,9 +227,17 @@ export function EditCustomerPage() {
                 <Label>Emergency Contact Phone</Label>
                 <Input {...register('emergency_phone')} className="bg-background border-border" />
               </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>Fitness Goals</Label>
+                <Input {...register('fitness_goals')} className="bg-background border-border" placeholder="e.g. Weight loss, Muscle gain, General fitness" />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>Notes</Label>
+                <Textarea {...register('notes')} className="bg-background border-border resize-none" rows={2} placeholder="Any additional notes..." />
+              </div>
             </div>
             <div className="flex justify-end pt-6 border-t border-border mt-6">
-              <Button type="submit" disabled={saving} className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold min-w-[120px]">
+              <Button type="submit" disabled={saving} className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground font-bold sm:min-w-[120px]">
                 {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-4 h-4 mr-2" /> Save Changes</>}
               </Button>
             </div>

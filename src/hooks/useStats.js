@@ -9,6 +9,7 @@ export function useStats() {
     expired: 0,
     paymentPending: 0,
     newThisMonth: 0,
+    collectedThisMonth: 0,
     attentionMembers: [] // Both expiring AND expired (who haven't renewed)
   })
   const [loading, setLoading] = useState(true)
@@ -17,49 +18,44 @@ export function useStats() {
     try {
       setLoading(true)
 
-      // Total Members (non-deleted)
-      const { count: totalMembers } = await supabase
-        .from('customers')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_deleted', false)
+      const startOfMonth = new Date()
+      startOfMonth.setDate(1)
+      startOfMonth.setHours(0, 0, 0, 0)
+      const todayStr = new Date().toISOString().split('T')[0]
 
-      // Active Members (non-deleted customers only)
-      const { count: activeMembers } = await supabase
-        .from('memberships')
-        .select('*, customers!inner(is_deleted)', { count: 'exact', head: true })
-        .eq('status', 'active')
-        .gte('end_date', new Date().toISOString().split('T')[0])
-        .eq('customers.is_deleted', false)
-
-      // Expiring Memberships (from view)
-      const { data: rawExpiringData } = await supabase
-        .from('active_members')
-        .select('*', { count: 'exact' })
-        .eq('expiry_status', 'expiring')
-
-      // Healthy Memberships (from view) to filter out false-positives
-      const { data: healthyData } = await supabase
-        .from('active_members')
-        .select('id')
-        .eq('expiry_status', 'healthy')
+      const [
+        { count: totalMembers },
+        { count: activeMembers },
+        { data: rawExpiringData },
+        { data: healthyData },
+        { data: expiredMemberships },
+        { data: activeMembershipCustomerIds },
+        { data: unpaidRawData },
+        { count: newThisMonth },
+        { data: paymentsThisMonth }
+      ] = await Promise.all([
+        // Total Members
+        supabase.from('customers').select('*', { count: 'exact', head: true }).eq('is_deleted', false),
+        // Active Members
+        supabase.from('memberships').select('*, customers!inner(is_deleted)', { count: 'exact', head: true }).eq('status', 'active').gte('end_date', todayStr).eq('customers.is_deleted', false),
+        // Expiring Memberships
+        supabase.from('active_members').select('*', { count: 'exact' }).eq('expiry_status', 'expiring'),
+        // Healthy Memberships
+        supabase.from('active_members').select('id').eq('expiry_status', 'healthy'),
+        // Expired Memberships
+        supabase.from('memberships').select('*, customers!inner(id, name, phone, whatsapp, is_deleted)').eq('status', 'expired').eq('customers.is_deleted', false),
+        // Active Customer IDs
+        supabase.from('memberships').select('customer_id, customers!inner(is_deleted)').eq('status', 'active').gte('end_date', todayStr).eq('customers.is_deleted', false),
+        // Unpaid Members
+        supabase.from('payments').select(`due_amount, memberships!inner (id, plan_name, start_date, end_date, customers!inner (id, name, phone, whatsapp, is_deleted))`).gt('due_amount', 0).eq('memberships.customers.is_deleted', false),
+        // New this month
+        supabase.from('customers').select('*', { count: 'exact', head: true }).eq('is_deleted', false).gte('created_at', startOfMonth.toISOString()),
+        // Payments this month
+        supabase.from('payments').select('paid_amount').gte('payment_date', startOfMonth.toISOString())
+      ])
 
       const healthyIds = new Set((healthyData || []).map(m => m.id))
       const expiringData = (rawExpiringData || []).filter(m => !healthyIds.has(m.id))
-
-      // Expired Memberships - only those whose customer has NOT renewed
-      // (i.e., customer has NO active membership currently)
-      const { data: expiredMemberships } = await supabase
-        .from('memberships')
-        .select('*, customers!inner(id, name, phone, whatsapp, is_deleted)')
-        .eq('status', 'expired')
-        .eq('customers.is_deleted', false)
-
-      // Filter out customers who already have an active membership (they renewed)
-      const { data: activeMembershipCustomerIds } = await supabase
-        .from('memberships')
-        .select('customer_id')
-        .eq('status', 'active')
-        .gte('end_date', new Date().toISOString().split('T')[0])
 
       const activeCustomerIds = new Set((activeMembershipCustomerIds || []).map(m => m.customer_id))
 
@@ -77,21 +73,6 @@ export function useStats() {
         }
       })
       const uniqueExpiredMembers = Array.from(expiredByCustomer.values())
-
-      // Unpaid Members (joining payments, memberships, and customers)
-      const { data: unpaidRawData } = await supabase
-        .from('payments')
-        .select(`
-          due_amount,
-          memberships!inner (
-            id, plan_name, start_date, end_date,
-            customers!inner (
-              id, name, phone, whatsapp, is_deleted
-            )
-          )
-        `)
-        .gt('due_amount', 0)
-        .eq('memberships.customers.is_deleted', false)
 
       const unpaidData = (unpaidRawData || []).map(p => ({
         id: p.memberships.customers.id,
@@ -112,7 +93,7 @@ export function useStats() {
         attentionMap.set(m.id, { ...m, _attentionType: 'expiring' })
       })
 
-      // Add expired (will overwrite expiring if somehow both exist, but they shouldn't)
+      // Add expired
       uniqueExpiredMembers.forEach(m => {
         attentionMap.set(m.customers.id, {
           id: m.customers.id,
@@ -126,44 +107,28 @@ export function useStats() {
         })
       })
 
-      // Add unpaid (if already in list, change type to unpaid to prioritize payment alert, or keep both? Let's prioritize unpaid)
+      // Add unpaid
       ;(unpaidData || []).forEach(m => {
         const existing = attentionMap.get(m.id)
         attentionMap.set(m.id, { 
           ...(existing || m), 
           _attentionType: 'unpaid',
-          due_amount: m.due_amount 
+          due_amount: (existing?.due_amount || 0) + Number(m.due_amount)
         })
       })
 
       const attentionMembers = Array.from(attentionMap.values())
 
-      // Payment Pending
-      const { data: payments } = await supabase
-        .from('payments')
-        .select('due_amount')
-        .gt('due_amount', 0)
-
-      const paymentPending = payments?.reduce((sum, p) => sum + Number(p.due_amount), 0) || 0
-
-      // New this month
-      const startOfMonth = new Date()
-      startOfMonth.setDate(1)
-      startOfMonth.setHours(0, 0, 0, 0)
-
-      const { count: newThisMonth } = await supabase
-        .from('customers')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_deleted', false)
-        .gte('created_at', startOfMonth.toISOString())
+      const paymentPending = unpaidData.reduce((sum, p) => sum + Number(p.due_amount), 0)
 
       setStats({
         totalMembers: totalMembers || 0,
-        activeMembers: activeMembers || 0,
+        activeMembers: activeCustomerIds.size || 0,
         expiringSoon: expiringData.length,
         expired: uniqueExpiredMembers.length,
         paymentPending,
         newThisMonth: newThisMonth || 0,
+        collectedThisMonth: (paymentsThisMonth || []).reduce((sum, p) => sum + (Number(p.paid_amount) || 0), 0),
         attentionMembers
       })
     } catch (error) {

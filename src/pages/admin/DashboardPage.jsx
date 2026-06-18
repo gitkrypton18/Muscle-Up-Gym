@@ -1,12 +1,11 @@
 import React from 'react'
-import { BarChart, Bar, XAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { Link, useNavigate } from 'react-router-dom'
-import { Users, UserCheck, AlertTriangle, XCircle, CreditCard, UserPlus } from 'lucide-react'
+import { Users, UserCheck, AlertTriangle, XCircle, CreditCard, UserPlus, Star, Wallet, Calendar } from 'lucide-react'
 import { useStats } from '@/hooks/useStats'
 import { StatCard } from '@/components/shared/StatCard'
 import { ExpiryBadge } from '@/components/shared/ExpiryBadge'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
-import { formatCurrency, calculateDaysRemaining } from '@/lib/utils'
+import { formatCurrency, calculateDaysRemaining, generateWhatsAppMessage } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ActionButtons } from '@/components/shared/ActionButtons'
 import { Badge } from '@/components/ui/badge'
@@ -21,42 +20,28 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-5">
+      {/* Owners Welcome */}
+      <div className="flex items-center justify-between">
+         <h1 className="text-2xl font-bold tracking-tight text-foreground">Dashboard</h1>
+         <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-sm">
+           <Star className="w-3 h-3 mr-1.5 inline" fill="currentColor" /> 
+           Owner: Pankaj
+         </Badge>
+      </div>
+
       {/* Stats Grid - 2 columns on mobile, 3 on desktop */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard title="Total Members" value={stats.totalMembers} icon={Users} color="blue" onClick={() => navigate('/admin/customers?filter=all')} />
         <StatCard title="Active" value={stats.activeMembers} icon={UserCheck} color="green" onClick={() => navigate('/admin/customers?filter=active')} />
         <StatCard title="Expiring Soon" value={stats.expiringSoon} icon={AlertTriangle} color="orange" onClick={() => navigate('/admin/customers?filter=expiring')} />
         <StatCard title="Expired" value={stats.expired} icon={XCircle} color="red" onClick={() => navigate('/admin/customers?filter=expired')} />
         <StatCard title="Pending ₹" value={formatCurrency(stats.paymentPending)} icon={CreditCard} color="yellow" onClick={() => navigate('/admin/customers?filter=unpaid')} />
+        <StatCard title="Earnings This Month" value={formatCurrency(stats.collectedThisMonth)} icon={Wallet} color="emerald" />
         <StatCard title="New This Month" value={stats.newThisMonth} icon={UserPlus} color="purple" onClick={() => navigate('/admin/customers?filter=all')} />
+        <StatCard title="Today's Date" value={new Date().toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })} icon={Calendar} color="indigo" />
       </div>
 
-      {/* Analytics Chart */}
-      <Card className="border-border bg-card">
-        <CardHeader className="pb-2 px-4 sm:px-6 pt-4 sm:pt-6">
-          <CardTitle className="text-base sm:text-lg text-foreground">Membership Overview</CardTitle>
-        </CardHeader>
-        <CardContent className="px-4 sm:px-6 pb-4 sm:pt-4">
-          <div className="h-[200px] w-full">
-            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-              <BarChart data={[
-                { name: 'Active', count: stats.activeMembers, fill: '#eab308' }, // primary color
-                { name: 'Expiring', count: stats.expiringSoon, fill: '#f59e0b' }, // amber
-                { name: 'Expired', count: stats.expired, fill: '#ef4444' } // red
-              ]}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip 
-                  cursor={{ fill: '#334155', opacity: 0.2 }}
-                  contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px' }}
-                  itemStyle={{ color: '#f8fafc' }}
-                />
-                <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={50} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+
 
       {/* Attention Section - shows both expired & expiring members */}
       <Card className="border-border bg-card">
@@ -88,15 +73,11 @@ export function DashboardPage() {
                 const isExpired = member._attentionType === 'expired'
                 const isUnpaid = member._attentionType === 'unpaid'
 
-                let waMessage = ''
-                const firstName = member.name?.split(' ')[0] || 'Member'
-                if (isUnpaid) {
-                   waMessage = `Hi ${firstName}, this is a gentle reminder that you have a pending due of ₹${member.due_amount} for your gym membership. Please clear it at the earliest. Thank you! 💪`
-                } else if (isExpired) {
-                   waMessage = `Hi ${firstName}, your MuscleUp Gym membership has expired. We'd love to see you back in the gym! Please renew your membership. 🏃‍♂️`
-                } else {
-                   waMessage = `Hi ${firstName}, your MuscleUp Gym membership expires in ${daysLeft} days. Please renew it soon to continue your fitness journey without interruption! 🏋️‍♂️`
-                }
+                const waMessage = generateWhatsAppMessage({
+                  name: member.name,
+                  daysLeft,
+                  dueAmount: isUnpaid ? member.due_amount : 0
+                })
 
                 return (
                   <Link

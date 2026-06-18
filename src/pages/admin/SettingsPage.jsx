@@ -1,14 +1,15 @@
-import React, { useState } from 'react'
-import { Download, Save, Loader2, Key } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Download, Save, Loader2, Key, Star } from 'lucide-react'
 import { toast } from 'sonner'
 import Papa from 'papaparse'
 import { saveAs } from 'file-saver'
 import { supabase } from '@/lib/supabase'
-import { GYM_DETAILS } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { useGymSettings } from '@/hooks/useGymSettings'
+import { Badge } from '@/components/ui/badge'
 
 export function SettingsPage() {
   const [loading, setLoading] = useState(false)
@@ -17,6 +18,13 @@ export function SettingsPage() {
     new: '',
     confirm: ''
   })
+
+  const { gymDetails, saveGymDetails } = useGymSettings()
+  const [gymForm, setGymForm] = useState(gymDetails)
+
+  useEffect(() => {
+    setGymForm(gymDetails)
+  }, [gymDetails])
 
   const handlePasswordChange = async (e) => {
     e.preventDefault()
@@ -39,21 +47,15 @@ export function SettingsPage() {
     }
   }
 
+  const handleGymDetailsSave = (e) => {
+    e.preventDefault()
+    saveGymDetails(gymForm)
+    toast.success('Gym details updated successfully')
+  }
+
   const exportData = async () => {
     try {
       setExporting(true)
-      
-      const { data: customers } = await supabase.from('customers').select('*')
-      const { data: memberships } = await supabase.from('memberships').select('*')
-      const { data: payments } = await supabase.from('payments').select('*')
-
-      const zipData = {
-        'customers.csv': Papa.unparse(customers || []),
-        'memberships.csv': Papa.unparse(memberships || []),
-        'payments.csv': Papa.unparse(payments || [])
-      }
-
-      // Simplified export: Just export active members view for quick access
       const { data: activeMembers } = await supabase.from('active_members').select('*')
       const csv = Papa.unparse(activeMembers || [])
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
@@ -69,7 +71,7 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 pb-12">
       <h2 className="text-2xl font-bold text-foreground mb-6">Settings</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -133,30 +135,73 @@ export function SettingsPage() {
             <CardDescription>Details used across the application</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-muted-foreground">Gym Name</p>
-                <p className="font-semibold text-foreground">{GYM_DETAILS.name}</p>
+            <form onSubmit={handleGymDetailsSave} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Gym Name</Label>
+                  <Input 
+                    value={gymForm.name} 
+                    onChange={e => setGymForm({...gymForm, name: e.target.value})}
+                    className="bg-background border-border"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Address</Label>
+                  <Input 
+                    value={gymForm.address} 
+                    onChange={e => setGymForm({...gymForm, address: e.target.value})}
+                    className="bg-background border-border"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    Primary Contact 
+                    {gymForm.phone.includes('93520') && <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30 text-[10px] px-1.5"><Star className="w-3 h-3 mr-1 inline" /> Owner (Pankaj)</Badge>}
+                  </Label>
+                  <Input 
+                    value={gymForm.phone} 
+                    onChange={e => setGymForm({...gymForm, phone: e.target.value})}
+                    className="bg-background border-border"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    Secondary Contact
+                    {gymForm.phone2.includes('9887') && <Badge className="bg-blue-500/15 text-blue-500 border-blue-500/30 text-[10px] px-1.5">Trainer (Raju)</Badge>}
+                  </Label>
+                  <Input 
+                    value={gymForm.phone2} 
+                    onChange={e => setGymForm({...gymForm, phone2: e.target.value})}
+                    className="bg-background border-border"
+                  />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label>Timings</Label>
+                  <Input 
+                    value={gymForm.timings} 
+                    onChange={e => setGymForm({...gymForm, timings: e.target.value})}
+                    className="bg-background border-border"
+                  />
+                </div>
               </div>
-              <div>
-                <p className="text-muted-foreground">Primary Contact</p>
-                <p className="font-semibold text-foreground">{GYM_DETAILS.phone} (Pankaj)</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Secondary Contact</p>
-                <p className="font-semibold text-foreground">{GYM_DETAILS.phone2} (Raju)</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Timings</p>
-                <p className="font-semibold text-foreground">{GYM_DETAILS.timings}</p>
-              </div>
-              <div className="sm:col-span-2">
-                <p className="text-muted-foreground">Address</p>
-                <p className="font-semibold text-foreground">{GYM_DETAILS.address}</p>
-              </div>
-            </div>
+              <Button type="submit" className="w-full sm:w-auto mt-4 bg-primary hover:bg-primary/90 text-primary-foreground">
+                <Save className="w-4 h-4 mr-2" /> Save Details
+              </Button>
+            </form>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Developer Credit */}
+      <div className="mt-12 text-center text-xs text-muted-foreground">
+        <p>Developed by <span className="font-semibold text-foreground">Kalpit Nagar</span> © 2026</p>
+        <div className="flex justify-center items-center gap-3 mt-2">
+          <a href="https://github.com/gitkrypton18" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">GitHub</a>
+          <span>•</span>
+          <a href="https://linkedin.com/in/kalpitnagar312" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">LinkedIn</a>
+          <span>•</span>
+          <span>Contact: kalpitnagar312@gmail.com</span>
+        </div>
       </div>
     </div>
   )

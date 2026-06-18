@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { ExpiryBadge } from '@/components/shared/ExpiryBadge'
 import { ActionButtons } from '@/components/shared/ActionButtons'
-import { calculateDaysRemaining, getInitials } from '@/lib/utils'
+import { calculateDaysRemaining, getInitials, generateWhatsAppMessage } from '@/lib/utils'
 
 export function CustomersPage() {
   const { customers, loading, fetchCustomers, deleteCustomer } = useCustomers()
@@ -33,9 +33,9 @@ export function CustomersPage() {
     return daysA - daysB
   })
 
-  const filteredCustomers = sortedCustomers.filter(c => {
-    const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          c.phone.includes(searchTerm)
+  // Helper to check if a customer matches current filter
+  const matchesFilter = (c) => {
+    const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.phone.includes(searchTerm)
     if (!matchesSearch) return false
 
     const daysLeft = calculateDaysRemaining(c.end_date)
@@ -45,6 +45,32 @@ export function CustomersPage() {
     if (filter === 'paid') return !c.due_amount || c.due_amount <= 0
     if (filter === 'unpaid') return c.due_amount > 0
     return true
+  }
+
+  // Group into singles and couples BEFORE filtering
+  const groupedCustomers = []
+  const processedIds = new Set()
+
+  sortedCustomers.forEach(c => {
+    if (processedIds.has(c.id)) return
+
+    // Find if they have a partner
+    const partner = sortedCustomers.find(p => p.id === c.partner_id || p.partner_id === c.id)
+    
+    if (partner && !processedIds.has(partner.id)) {
+      groupedCustomers.push({ type: 'couple', primary: c.partner_id ? partner : c, partner: c.partner_id ? c : partner })
+      processedIds.add(c.id)
+      processedIds.add(partner.id)
+    } else {
+      groupedCustomers.push({ type: 'single', customer: c })
+      processedIds.add(c.id)
+    }
+  })
+
+  // Filter the groups (if either partner matches, show the couple)
+  const filteredGroups = groupedCustomers.filter(group => {
+    if (group.type === 'single') return matchesFilter(group.customer)
+    return matchesFilter(group.primary) || matchesFilter(group.partner)
   })
 
   const filterTabs = [
@@ -60,6 +86,16 @@ export function CustomersPage() {
     e.stopPropagation()
     if (window.confirm(`Are you sure you want to delete ${name}?`)) {
       await deleteCustomer(id)
+      fetchCustomers()
+    }
+  }
+
+  const handleDeleteCouple = async (e, p1, p2) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (window.confirm(`Are you sure you want to delete BOTH ${p1.name} and ${p2.name}?`)) {
+      await deleteCustomer(p1.id)
+      await deleteCustomer(p2.id)
       fetchCustomers()
     }
   }
@@ -114,7 +150,7 @@ export function CustomersPage() {
       <div className="space-y-3">
         {loading ? (
           <LoadingSpinner />
-        ) : filteredCustomers.length === 0 ? (
+        ) : filteredGroups.length === 0 ? (
           <div className="text-center py-16 px-4 bg-card border border-border rounded-xl">
             <div className="w-14 h-14 bg-secondary rounded-full flex items-center justify-center mx-auto mb-3">
               <Search className="w-7 h-7 text-muted-foreground" />
@@ -123,77 +159,129 @@ export function CustomersPage() {
             <p className="text-sm text-muted-foreground mt-1">Try adjusting your search or filters</p>
           </div>
         ) : (
-          /* Card-based list - works perfectly on all screen sizes */
-          filteredCustomers.map(customer => {
-            const daysLeft = calculateDaysRemaining(customer.end_date)
-            const isExpired = daysLeft < 0
-            const isExpiring = daysLeft >= 0 && daysLeft <= 5
+          filteredGroups.map(group => {
+            if (group.type === 'single') {
+              const customer = group.customer
+              const daysLeft = calculateDaysRemaining(customer.end_date)
+              const isExpired = daysLeft < 0
+              const isExpiring = daysLeft >= 0 && daysLeft <= 5
 
-            return (
-              <Link
-                key={customer.id}
-                to={`/admin/customers/${customer.id}`}
-                className={`block bg-card border rounded-xl p-4 transition-all active:scale-[0.98] hover:shadow-lg hover:shadow-primary/5 ${
-                  isExpired ? 'border-red-500/30' : isExpiring ? 'border-amber-500/30' : 'border-border hover:border-primary/30'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  {/* Avatar */}
-                  <div className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border ${
-                    isExpired ? 'bg-red-500/15 text-red-400 border-red-500/30' :
-                    isExpiring ? 'bg-amber-500/15 text-amber-400 border-amber-500/30' :
-                    'bg-primary/15 text-primary border-primary/30'
-                  }`}>
-                    {getInitials(customer.name)}
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <h3 className="font-semibold text-foreground text-[15px] truncate">{customer.name}</h3>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+              return (
+                <Link
+                  key={customer.id}
+                  to={`/admin/customers/${customer.id}`}
+                  className={`block bg-card border rounded-xl p-4 transition-all active:scale-[0.98] hover:shadow-lg hover:shadow-primary/5 ${
+                    isExpired ? 'border-red-500/30' : isExpiring ? 'border-amber-500/30' : 'border-border hover:border-primary/30'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border ${
+                      isExpired ? 'bg-red-500/15 text-red-400 border-red-500/30' :
+                      isExpiring ? 'bg-amber-500/15 text-amber-400 border-amber-500/30' :
+                      'bg-primary/15 text-primary border-primary/30'
+                    }`}>
+                      {getInitials(customer.name)}
                     </div>
-                    <p className="text-sm text-muted-foreground">{customer.phone}</p>
-
-                    {/* Tags row */}
-                    <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                      <Badge className="bg-secondary text-foreground border-border text-[11px] px-2 py-0.5">
-                        {customer.plan_name}
-                      </Badge>
-                      <ExpiryBadge daysRemaining={daysLeft} />
-                      {getPaymentBadge(customer)}
-                    </div>
-
-                    {/* Dates - compact */}
-                    <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                      <span>{new Date(customer.start_date || customer.created_at).toLocaleDateString('en-IN', {day:'2-digit', month:'short'})} → {new Date(customer.end_date).toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'2-digit'})}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="font-semibold text-foreground text-[15px] truncate">{customer.name}</h3>
+                        <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                      </div>
+                      <p className="text-sm text-muted-foreground">{customer.phone}</p>
+                      <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                        <Badge className="bg-secondary text-foreground border-border text-[11px] px-2 py-0.5">{customer.plan_name}</Badge>
+                        <ExpiryBadge daysRemaining={daysLeft} />
+                        {getPaymentBadge(customer)}
+                      </div>
+                      <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                        <span>{new Date(customer.start_date || customer.created_at).toLocaleDateString('en-IN', {day:'2-digit', month:'short'})} → {new Date(customer.end_date).toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'2-digit'})}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
+                    <ActionButtons phone={customer.phone} whatsapp={customer.whatsapp} message={generateWhatsAppMessage({ name: customer.name, daysLeft, dueAmount: customer.due_amount })} />
+                    <Button variant="outline" size="sm" onClick={(e) => handleDelete(e, customer.id, customer.name)} className="h-8 px-3 border-red-500/20 text-red-400 hover:bg-red-500/10 text-xs">
+                      <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
+                    </Button>
+                  </div>
+                </Link>
+              )
+            } else {
+              // COUPLE SPLIT CARD
+              const p1 = group.primary
+              const p2 = group.partner
+              
+              const d1 = calculateDaysRemaining(p1.end_date)
+              const d2 = calculateDaysRemaining(p2.end_date)
+              
+              const isExpired = d1 < 0 && d2 < 0
+              
+              return (
+                <div key={`${p1.id}-${p2.id}`} className="block bg-card border border-purple-500/40 bg-purple-500/5 rounded-xl transition-all overflow-hidden">
+                  {/* Shared Header */}
+                  <div className="flex justify-between items-center px-4 py-2 border-b border-purple-500/20 bg-purple-500/10">
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[10px] uppercase font-bold">COUPLE PLAN</Badge>
+                      <span className="text-xs text-muted-foreground font-medium">{p1.plan_name?.replace(' (Partner)', '')}</span>
+                    </div>
+                  </div>
 
-                {/* Bottom actions */}
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
-                  <ActionButtons phone={customer.phone} whatsapp={customer.whatsapp} />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => handleDelete(e, customer.id, customer.name)}
-                    className="h-8 px-3 border-red-500/20 text-red-400 hover:bg-red-500/10 text-xs"
-                  >
-                    <Trash2 className="w-3.5 h-3.5 mr-1" />
-                    Delete
-                  </Button>
+                  {/* Split Body */}
+                  <div className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-purple-500/20">
+                    
+                    {/* Primary Half */}
+                    <Link to={`/admin/customers/${p1.id}`} className="flex-1 p-4 hover:bg-purple-500/10 transition-colors active:bg-purple-500/15">
+                      <div className="flex items-start gap-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border ${d1 < 0 ? 'bg-red-500/15 text-red-400 border-red-500/30' : 'bg-purple-500/20 text-purple-400 border-purple-500/40'}`}>
+                          {getInitials(p1.name)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-foreground text-[14px] truncate flex items-center gap-1">{p1.name} <ChevronRight className="w-3 h-3 text-muted-foreground" /></h3>
+                          <p className="text-xs text-muted-foreground">{p1.phone}</p>
+                          <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                            <ExpiryBadge daysRemaining={d1} />
+                            {getPaymentBadge(p1)}
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+
+                    {/* Partner Half */}
+                    <Link to={`/admin/customers/${p2.id}`} className="flex-1 p-4 hover:bg-purple-500/10 transition-colors active:bg-purple-500/15">
+                      <div className="flex items-start gap-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border ${d2 < 0 ? 'bg-red-500/15 text-red-400 border-red-500/30' : 'bg-purple-500/20 text-purple-400 border-purple-500/40'}`}>
+                          {getInitials(p2.name)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-foreground text-[14px] truncate flex items-center gap-1">{p2.name} <ChevronRight className="w-3 h-3 text-muted-foreground" /></h3>
+                          <p className="text-xs text-muted-foreground">{p2.phone}</p>
+                          <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                            <ExpiryBadge daysRemaining={d2} />
+                            {getPaymentBadge(p2)}
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                    
+                  </div>
+
+                  {/* Shared Bottom Action Bar */}
+                  <div className="flex items-center justify-end px-4 py-3 bg-purple-500/5 border-t border-purple-500/20">
+                     <Button variant="outline" size="sm" onClick={(e) => handleDeleteCouple(e, p1, p2)} className="h-8 px-3 border-red-500/20 text-red-400 hover:bg-red-500/10 text-xs">
+                        <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete Both
+                     </Button>
+                  </div>
                 </div>
-              </Link>
-            )
+              )
+            }
           })
         )}
       </div>
 
       {/* Footer count */}
-      {!loading && filteredCustomers.length > 0 && (
+      {!loading && filteredGroups.length > 0 && (
         <p className="text-center text-xs text-muted-foreground py-2">
-          Showing {filteredCustomers.length} of {customers.length} members
+          Showing {filteredGroups.reduce((acc, g) => acc + (g.type === 'couple' ? 2 : 1), 0)} of {customers.length} members
         </p>
       )}
     </div>

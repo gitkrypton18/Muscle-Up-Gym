@@ -15,13 +15,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 export function RenewMembershipPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { fetchCustomerById } = useCustomers()
+  const { fetchCustomerById, addCustomer, updateCustomer } = useCustomers()
   const { addMembership, updateMembershipStatus } = useMemberships()
   const { addPayment } = usePayments()
   
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [customer, setCustomer] = useState(null)
+  const [showPartnerModal, setShowPartnerModal] = useState(false)
+  const [partnerData, setPartnerData] = useState({ 
+    name: '', phone: '', whatsapp: '', email: '', 
+    age: '', gender: '', height: '', weight: '',
+    preferred_batch: 'Flexible', blood_group: '', 
+    medical: '', emergency_name: '', emergency_phone: '',
+    fitness_goals: '', notes: '' 
+  })
   
   const [formData, setFormData] = useState({
     plan_name: PLANS[1].name,
@@ -78,23 +86,27 @@ export function RenewMembershipPage() {
     return date.toISOString().split('T')[0]
   }
 
-  const handleSubmit = async () => {
-    if (!formData.paid_amount || formData.paid_amount < 0) {
+  const handleSubmit = () => {
+    if (formData.paid_amount === undefined || formData.paid_amount === '' || Number(formData.paid_amount) < 0) {
       toast.error('Valid Paid Amount is required')
       return
     }
-
     if (Number(formData.paid_amount) > Number(formData.amount)) {
       toast.error('Paid Amount cannot be greater than Total Amount')
       return
     }
 
+    if (formData.plan_name.toLowerCase().includes('couple') && !customer.partner_id) {
+      setShowPartnerModal(true)
+      return
+    }
+    
+    executeRenewal(customer.partner_id)
+  }
+
+  const executeRenewal = async (partnerId) => {
     setSaving(true)
     try {
-      // 1. We no longer expire existing active memberships. 
-      // The new membership will simply act as a consecutive active period.
-
-      // 2. Add New Membership
       const endDate = calculateEndDate(formData.start_date, formData.durationDays)
       const { data: membershipData, error: memError } = await addMembership({
         customer_id: id,
@@ -106,7 +118,6 @@ export function RenewMembershipPage() {
       })
       if (memError) throw new Error(memError.message || 'Failed to add membership')
 
-      // 3. Add Payment
       const { error: payError } = await addPayment({
         membership_id: membershipData.id,
         total_amount: formData.amount,
@@ -117,11 +128,48 @@ export function RenewMembershipPage() {
       })
       if (payError) throw new Error(payError.message || 'Failed to add payment')
 
+      if (formData.plan_name.toLowerCase().includes('couple') && partnerId) {
+        await addMembership({
+          customer_id: partnerId,
+          plan_name: formData.plan_name + ' (Partner)',
+          amount: 0,
+          start_date: formData.start_date,
+          end_date: endDate,
+          status: 'active'
+        })
+      }
+
       toast.success('Membership renewed successfully!')
       navigate(`/admin/customers/${id}`)
     } catch (error) {
       toast.error(error.message)
-    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCreatePartnerAndRenew = async () => {
+    if (!partnerData.name || !partnerData.phone) {
+      toast.error('Partner Name and Phone are required')
+      return
+    }
+    setSaving(true)
+    try {
+      const { data: newPartner, error: partnerError } = await addCustomer({
+        ...partnerData,
+        age: partnerData.age || null,
+        height: partnerData.height || null,
+        weight: partnerData.weight || null,
+        gender: partnerData.gender || null,
+        partner_id: customer.id
+      })
+      if (partnerError) throw new Error(partnerError.message || 'Failed to create partner')
+      
+      await updateCustomer(customer.id, { partner_id: newPartner.id })
+      setShowPartnerModal(false)
+      
+      await executeRenewal(newPartner.id)
+    } catch (err) {
+      toast.error(err.message)
       setSaving(false)
     }
   }
@@ -185,9 +233,12 @@ export function RenewMembershipPage() {
 
             <div className="space-y-4 bg-secondary/30 p-4 rounded-xl border border-border">
               <h3 className="text-lg font-semibold text-foreground">Payment</h3>
-              <div className="flex justify-between items-center bg-background p-3 rounded-lg border border-border">
-                <span className="text-muted-foreground">Total Amount</span>
-                <span className="text-xl font-bold text-foreground">₹{formData.amount}</span>
+              <div className="space-y-2">
+                <Label>Total Amount</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-muted-foreground">₹</span>
+                  <Input type="number" name="amount" value={formData.amount} onChange={handleChange} className="pl-7 bg-background border-border text-lg font-bold" />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label>Paid Amount</Label>
@@ -221,12 +272,124 @@ export function RenewMembershipPage() {
           </div>
 
           <div className="flex justify-end pt-4 border-t border-border mt-6">
-            <Button onClick={handleSubmit} disabled={saving} className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold min-w-[150px]">
+            <Button onClick={handleSubmit} disabled={saving} className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground font-bold sm:min-w-[150px]">
               {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <><RefreshCw className="w-4 h-4 mr-2" /> Renew Plan</>}
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      {/* Add Partner Modal */}
+      {showPartnerModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+          <div className="bg-card border border-border w-full max-w-3xl rounded-2xl shadow-2xl p-6 relative animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[95vh]">
+            <h3 className="text-xl font-bold text-center text-foreground mb-1 shrink-0">Add Partner</h3>
+            <p className="text-center text-sm text-muted-foreground mb-4 shrink-0">
+              Complete the partner's profile to continue.
+            </p>
+            
+            <div className="space-y-4 overflow-y-auto pr-2 pb-2 flex-1 custom-scrollbar">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Partner Name *</Label>
+                  <Input value={partnerData.name} onChange={(e) => setPartnerData(p => ({...p, name: e.target.value}))} className="bg-background border-border" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Partner Phone *</Label>
+                  <Input value={partnerData.phone} onChange={(e) => setPartnerData(p => ({...p, phone: e.target.value}))} className="bg-background border-border" />
+                </div>
+                <div className="space-y-2">
+                  <Label>WhatsApp</Label>
+                  <Input value={partnerData.whatsapp} onChange={(e) => setPartnerData(p => ({...p, whatsapp: e.target.value}))} className="bg-background border-border" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <Input type="email" value={partnerData.email} onChange={(e) => setPartnerData(p => ({...p, email: e.target.value}))} className="bg-background border-border" />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Age</Label>
+                  <Input type="number" value={partnerData.age} onChange={(e) => setPartnerData(p => ({...p, age: e.target.value}))} className="bg-background border-border" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Gender</Label>
+                  <Select value={partnerData.gender} onValueChange={(v) => setPartnerData(p => ({...p, gender: v}))}>
+                    <SelectTrigger className="bg-background border-border"><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Height (cm)</Label>
+                  <Input type="number" value={partnerData.height} onChange={(e) => setPartnerData(p => ({...p, height: e.target.value}))} className="bg-background border-border" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Weight (kg)</Label>
+                  <Input type="number" value={partnerData.weight} onChange={(e) => setPartnerData(p => ({...p, weight: e.target.value}))} className="bg-background border-border" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Preferred Batch</Label>
+                  <Select value={partnerData.preferred_batch} onValueChange={(v) => setPartnerData(p => ({...p, preferred_batch: v}))}>
+                    <SelectTrigger className="bg-background border-border"><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Morning">Morning</SelectItem>
+                      <SelectItem value="Evening">Evening</SelectItem>
+                      <SelectItem value="Flexible">Flexible</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Blood Group</Label>
+                  <Select value={partnerData.blood_group} onValueChange={(v) => setPartnerData(p => ({...p, blood_group: v}))}>
+                    <SelectTrigger className="bg-background border-border"><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="A+">A+</SelectItem><SelectItem value="A-">A-</SelectItem>
+                      <SelectItem value="B+">B+</SelectItem><SelectItem value="B-">B-</SelectItem>
+                      <SelectItem value="O+">O+</SelectItem><SelectItem value="O-">O-</SelectItem>
+                      <SelectItem value="AB+">AB+</SelectItem><SelectItem value="AB-">AB-</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2 mt-4">
+                <Label>Medical Conditions / History</Label>
+                <Input value={partnerData.medical} onChange={(e) => setPartnerData(p => ({...p, medical: e.target.value}))} className="bg-background border-border" />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div className="space-y-2">
+                  <Label>Emergency Contact Name</Label>
+                  <Input value={partnerData.emergency_name} onChange={(e) => setPartnerData(p => ({...p, emergency_name: e.target.value}))} className="bg-background border-border" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Emergency Phone</Label>
+                  <Input value={partnerData.emergency_phone} onChange={(e) => setPartnerData(p => ({...p, emergency_phone: e.target.value}))} className="bg-background border-border" />
+                </div>
+              </div>
+
+              <div className="space-y-2 mt-4">
+                <Label>Fitness Goals</Label>
+                <Input value={partnerData.fitness_goals} onChange={(e) => setPartnerData(p => ({...p, fitness_goals: e.target.value}))} className="bg-background border-border" />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-4 pt-4 border-t border-border shrink-0">
+              <Button variant="ghost" className="flex-1 text-muted-foreground hover:text-foreground" onClick={() => setShowPartnerModal(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCreatePartnerAndRenew} disabled={saving} className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold">
+                {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Create & Renew'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

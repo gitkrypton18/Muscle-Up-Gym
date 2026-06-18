@@ -37,9 +37,9 @@ export function StatCard({ title, value, icon: Icon, color, onClick }) {
       )} />
 
       <CardContent className="p-4 sm:p-5 flex items-center justify-between relative z-10 gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">{title}</p>
-          <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-foreground tracking-tight truncate mt-0.5">{value}</h3>
+        <div className="min-w-0 flex-1 pr-2">
+          <p className="text-xs sm:text-sm font-medium text-muted-foreground leading-tight">{title}</p>
+          <h3 className="text-lg sm:text-2xl lg:text-3xl font-black text-foreground tracking-tight mt-0.5 break-words">{value}</h3>
         </div>
         <div className={cn("p-2.5 sm:p-3 rounded-xl transition-all duration-300 shrink-0", colorStyles[color] || colorStyles.blue)}>
           <Icon className="w-5 h-5 sm:w-6 sm:h-6" />

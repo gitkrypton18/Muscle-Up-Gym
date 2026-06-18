@@ -32,3 +32,17 @@ export function getInitials(name) {
   }
   return parts[0].substring(0, 2).toUpperCase()
 }
+
+export function generateWhatsAppMessage({ name, daysLeft, dueAmount }) {
+  const firstName = name?.split(" ")[0] || "Member"
+  
+  if (dueAmount > 0) {
+    return `Hi ${firstName}, this is a gentle reminder that you have a pending due of ₹${dueAmount} for your gym membership. Please clear it at the earliest. Thank you! 💪`
+  } else if (daysLeft < 0) {
+    return `Hi ${firstName}, your MuscleUp Gym membership has expired. We'd love to see you back in the gym! Please renew your membership. 🏃‍♂️`
+  } else if (daysLeft >= 0 && daysLeft <= 5) {
+    return `Hi ${firstName}, your MuscleUp Gym membership expires in ${daysLeft} days. Please renew it soon to continue your fitness journey without interruption! 🏋️‍♂️`
+  }
+  
+  return `Hi ${firstName}, greetings from MuscleUp Gym! 💪`
+}
