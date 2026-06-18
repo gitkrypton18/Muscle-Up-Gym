@@ -1,6 +1,6 @@
 import React from 'react'
 import { BarChart, Bar, XAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Users, UserCheck, AlertTriangle, XCircle, CreditCard, UserPlus } from 'lucide-react'
 import { useStats } from '@/hooks/useStats'
 import { StatCard } from '@/components/shared/StatCard'
@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge'
 
 export function DashboardPage() {
   const { stats, loading } = useStats()
+  const navigate = useNavigate()
 
   if (loading) return <LoadingSpinner />
 
@@ -22,12 +23,12 @@ export function DashboardPage() {
     <div className="space-y-5">
       {/* Stats Grid - 2 columns on mobile, 3 on desktop */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-        <StatCard title="Total Members" value={stats.totalMembers} icon={Users} color="blue" />
-        <StatCard title="Active" value={stats.activeMembers} icon={UserCheck} color="green" />
-        <StatCard title="Expiring Soon" value={stats.expiringSoon} icon={AlertTriangle} color="orange" />
-        <StatCard title="Expired" value={stats.expired} icon={XCircle} color="red" />
-        <StatCard title="Pending ₹" value={formatCurrency(stats.paymentPending)} icon={CreditCard} color="yellow" />
-        <StatCard title="New This Month" value={stats.newThisMonth} icon={UserPlus} color="purple" />
+        <StatCard title="Total Members" value={stats.totalMembers} icon={Users} color="blue" onClick={() => navigate('/admin/customers?filter=all')} />
+        <StatCard title="Active" value={stats.activeMembers} icon={UserCheck} color="green" onClick={() => navigate('/admin/customers?filter=active')} />
+        <StatCard title="Expiring Soon" value={stats.expiringSoon} icon={AlertTriangle} color="orange" onClick={() => navigate('/admin/customers?filter=expiring')} />
+        <StatCard title="Expired" value={stats.expired} icon={XCircle} color="red" onClick={() => navigate('/admin/customers?filter=expired')} />
+        <StatCard title="Pending ₹" value={formatCurrency(stats.paymentPending)} icon={CreditCard} color="yellow" onClick={() => navigate('/admin/customers?filter=unpaid')} />
+        <StatCard title="New This Month" value={stats.newThisMonth} icon={UserPlus} color="purple" onClick={() => navigate('/admin/customers?filter=all')} />
       </div>
 
       {/* Analytics Chart */}
@@ -37,7 +38,7 @@ export function DashboardPage() {
         </CardHeader>
         <CardContent className="px-4 sm:px-6 pb-4 sm:pt-4">
           <div className="h-[200px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
               <BarChart data={[
                 { name: 'Active', count: stats.activeMembers, fill: '#eab308' }, // primary color
                 { name: 'Expiring', count: stats.expiringSoon, fill: '#f59e0b' }, // amber

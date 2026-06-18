@@ -2,7 +2,7 @@ import React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
-export function StatCard({ title, value, icon: Icon, color }) {
+export function StatCard({ title, value, icon: Icon, color, onClick }) {
   const colorStyles = {
     green: 'bg-green-500/10 text-green-500',
     orange: 'bg-orange-500/10 text-orange-500',
@@ -22,10 +22,17 @@ export function StatCard({ title, value, icon: Icon, color }) {
   }
 
   return (
-    <Card className="glass-card group overflow-hidden relative">
+    <Card 
+      onClick={onClick}
+      className={cn(
+        "glass-card group overflow-hidden relative transition-all duration-300", 
+        onClick ? "cursor-pointer hover:border-border hover:-translate-y-1 hover:shadow-lg" : ""
+      )}
+    >
       {/* Decorative gradient blob */}
       <div className={cn(
-        "absolute -right-4 -top-4 w-20 h-20 rounded-full blur-2xl opacity-20 transition-all duration-500 group-hover:scale-150",
+        "absolute -right-4 -top-4 w-20 h-20 rounded-full blur-2xl opacity-20 transition-all duration-500",
+        onClick ? "group-hover:scale-150" : "",
         glowMap[color] || glowMap.blue
       )} />
 

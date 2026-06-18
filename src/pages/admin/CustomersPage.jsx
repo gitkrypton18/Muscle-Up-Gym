@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Search, Plus, Trash2, ChevronRight, IndianRupee } from 'lucide-react'
 import { useCustomers } from '@/hooks/useCustomers'
 import { Button } from '@/components/ui/button'
@@ -13,7 +13,9 @@ import { calculateDaysRemaining, getInitials } from '@/lib/utils'
 export function CustomersPage() {
   const { customers, loading, fetchCustomers, deleteCustomer } = useCustomers()
   const [searchTerm, setSearchTerm] = useState('')
-  const [filter, setFilter] = useState('all')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const filter = searchParams.get('filter') || 'all'
+  const setFilter = (val) => setSearchParams({ filter: val })
 
   useEffect(() => {
     fetchCustomers()
