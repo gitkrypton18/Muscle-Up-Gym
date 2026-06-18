@@ -112,6 +112,7 @@ export function RenewMembershipPage() {
         total_amount: formData.amount,
         paid_amount: formData.paid_amount,
         payment_method: formData.payment_method,
+        payment_date: new Date().toISOString(),
         notes: formData.payment_notes || null
       })
       if (payError) throw new Error(payError.message || 'Failed to add payment')

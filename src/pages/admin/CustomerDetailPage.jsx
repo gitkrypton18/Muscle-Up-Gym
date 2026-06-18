@@ -9,6 +9,7 @@ import { ActionButtons } from '@/components/shared/ActionButtons'
 import { ExpiryBadge } from '@/components/shared/ExpiryBadge'
 import { calculateDaysRemaining, getInitials, formatCurrency } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
+import { toast } from 'sonner'
 
 export function CustomerDetailPage() {
   const { id } = useParams()
@@ -188,7 +189,7 @@ export function CustomerDetailPage() {
                     <div key={payment.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-lg border border-border bg-background">
                       <div className="min-w-0">
                         <p className="font-medium text-foreground text-sm truncate">{formatCurrency(payment.paid_amount)} via {payment.payment_method}</p>
-                        <p className="text-xs text-muted-foreground">{new Date(payment.payment_date).toLocaleDateString('en-IN')}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(payment.payment_date).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</p>
                       </div>
                       {payment.due_amount > 0 ? (
                         <div className="flex items-center gap-2 self-start sm:self-center">

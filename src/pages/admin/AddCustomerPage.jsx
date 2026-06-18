@@ -163,7 +163,9 @@ export function AddCustomerPage() {
         membership_id: membershipData.id,
         total_amount: data.amount,
         paid_amount: data.paid_amount,
+        due_amount: Math.max(0, data.amount - data.paid_amount),
         payment_method: data.payment_method,
+        payment_date: new Date().toISOString(),
         notes: data.payment_notes || null
       })
       if (payError) throw new Error(payError.message || 'Failed to add payment')
