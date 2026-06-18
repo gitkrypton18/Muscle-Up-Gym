@@ -31,7 +31,7 @@ export function CustomerDetailPage() {
 
   const memberships = customer.memberships?.sort((a, b) => new Date(b.start_date) - new Date(a.start_date)) || []
   const currentMembership = memberships.find(m => m.status === 'active') || memberships[0]
-  const allPayments = customer.payments?.sort((a, b) => new Date(b.payment_date) - new Date(a.payment_date)) || []
+  const allPayments = memberships.flatMap(m => m.payments || []).sort((a, b) => new Date(b.payment_date) - new Date(a.payment_date))
 
   const handleDeleteCustomer = async () => {
     if (window.confirm(`Are you sure you want to delete ${customer.name}? This action cannot be undone.`)) {
@@ -177,7 +177,7 @@ export function CustomerDetailPage() {
                   <CreditCard className="w-4 h-4 mr-1.5" /> Payment Details
                 </h4>
                 <div className="space-y-2">
-                  {allPayments.filter(p => p.membership_id === currentMembership.id).map(payment => (
+                  {allPayments.map(payment => (
                     <div key={payment.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-lg border border-border bg-background">
                       <div className="min-w-0">
                         <p className="font-medium text-foreground text-sm truncate">{formatCurrency(payment.paid_amount)} via {payment.payment_method}</p>
