@@ -198,9 +198,15 @@ export function CustomerDetailPage() {
                             variant="outline" 
                             className="h-6 text-[10px] px-2 border-green-500/30 text-green-500 hover:bg-green-500/10"
                             onClick={async () => {
+                              const calculatedTotal = payment.paid_amount + payment.due_amount;
                               if (window.confirm(`Settle pending due of ₹${payment.due_amount} for this payment?`)) {
-                                await settlePaymentDue(payment.id, payment.total_amount)
-                                window.location.reload()
+                                const { error } = await settlePaymentDue(payment.id, calculatedTotal)
+                                if (error) {
+                                  toast.error(error.message || 'Failed to settle payment')
+                                } else {
+                                  toast.success('Payment settled successfully')
+                                  window.location.reload()
+                                }
                               }
                             }}
                           >
@@ -208,8 +214,13 @@ export function CustomerDetailPage() {
                           </Button>
                           <Button size="icon" variant="outline" className="h-6 w-6 border-red-500/20 text-red-500 hover:bg-red-500/10" onClick={async () => {
                             if (window.confirm('Delete this payment record? This cannot be undone.')) {
-                              await deletePayment(payment.id)
-                              window.location.reload()
+                              const { error } = await deletePayment(payment.id)
+                              if (error) {
+                                toast.error(error.message || 'Failed to delete payment')
+                              } else {
+                                toast.success('Payment deleted')
+                                window.location.reload()
+                              }
                             }
                           }}>
                             <Trash2 className="w-3 h-3" />
