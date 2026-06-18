@@ -4,6 +4,7 @@ import { Toaster } from 'sonner'
 import { AuthProvider, useAuth } from '@/context/AuthContext'
 import { AdminLayout } from '@/components/layout/AdminLayout'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary'
 
 // Pages
 import { LoginPage } from '@/pages/admin/LoginPage'
@@ -30,30 +31,32 @@ const ProtectedRoute = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/admin/login" element={<LoginPage />} />
-          
-          <Route path="/admin" element={<ProtectedRoute />}>
-            <Route element={<AdminLayout />}>
-              <Route index element={<Navigate to="dashboard" replace />} />
-              <Route path="dashboard" element={<DashboardPage />} />
-              <Route path="customers" element={<CustomersPage />} />
-              <Route path="customers/add" element={<AddCustomerPage />} />
-              <Route path="customers/:id" element={<CustomerDetailPage />} />
-              <Route path="customers/:id/edit" element={<EditCustomerPage />} />
-              <Route path="customers/:id/renew" element={<RenewMembershipPage />} />
-              <Route path="leads" element={<LeadsPage />} />
-              <Route path="settings" element={<SettingsPage />} />
+    <ErrorBoundary>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/admin/login" element={<LoginPage />} />
+            
+            <Route path="/admin" element={<ProtectedRoute />}>
+              <Route element={<AdminLayout />}>
+                <Route index element={<Navigate to="dashboard" replace />} />
+                <Route path="dashboard" element={<DashboardPage />} />
+                <Route path="customers" element={<CustomersPage />} />
+                <Route path="customers/add" element={<AddCustomerPage />} />
+                <Route path="customers/:id" element={<CustomerDetailPage />} />
+                <Route path="customers/:id/edit" element={<EditCustomerPage />} />
+                <Route path="customers/:id/renew" element={<RenewMembershipPage />} />
+                <Route path="leads" element={<LeadsPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+              </Route>
             </Route>
-          </Route>
-          
-          <Route path="*" element={<Navigate to="/admin/login" replace />} />
-        </Routes>
-      </BrowserRouter>
-      <Toaster position="top-right" theme="dark" richColors />
-    </AuthProvider>
+            
+            <Route path="*" element={<Navigate to="/admin/login" replace />} />
+          </Routes>
+        </BrowserRouter>
+        <Toaster position="top-right" theme="dark" richColors />
+      </AuthProvider>
+    </ErrorBoundary>
   )
 }
 

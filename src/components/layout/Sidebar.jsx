@@ -2,6 +2,7 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { LayoutDashboard, Users, UserPlus, FileText, Settings, LogOut } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import gymLogo from '@/assets/gym-logo.jpg'
 
 const navItems = [
   { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
@@ -17,10 +18,13 @@ export function Sidebar() {
   return (
     <div className="flex flex-col h-full w-[260px] bg-card border-r border-border text-foreground">
       {/* Logo */}
-      <div className="p-6">
-        <h1 className="text-2xl font-black tracking-tight text-primary uppercase">
+      <div className="p-6 flex items-center gap-3">
+        <div className="w-12 h-12 rounded-lg overflow-hidden border border-primary/50 shadow-[0_0_15px_rgba(212,133,44,0.3)] bg-black shrink-0">
+          <img src={gymLogo} alt="Gym Logo" className="w-full h-full object-cover" />
+        </div>
+        <h1 className="text-2xl font-black tracking-tight text-primary uppercase leading-tight">
           MuscleUp
-          <span className="text-foreground block text-sm font-medium tracking-normal mt-1 opacity-70">
+          <span className="text-foreground block text-xs font-medium tracking-normal opacity-70">
             Fitness
           </span>
         </h1>

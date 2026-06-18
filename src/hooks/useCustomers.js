@@ -15,7 +15,26 @@ export function useCustomers() {
         .order('name')
       
       if (error) throw error
-      setCustomers(data || [])
+
+      // Fetch pending payments
+      const { data: paymentsData, error: paymentsError } = await supabase
+        .from('payments')
+        .select('membership_id, due_amount')
+        .gt('due_amount', 0)
+
+      if (paymentsError) throw paymentsError
+
+      const dueAmountMap = new Map()
+      paymentsData?.forEach(p => {
+        dueAmountMap.set(p.membership_id, p.due_amount)
+      })
+
+      const mergedData = (data || []).map(member => ({
+        ...member,
+        due_amount: dueAmountMap.get(member.membership_id) || 0
+      }))
+
+      setCustomers(mergedData)
     } catch (err) {
       setError(err.message)
       console.error('Error fetching customers:', err)
@@ -31,8 +50,10 @@ export function useCustomers() {
         .from('customers')
         .select(`
           *,
-          memberships(*),
-          payments(*)
+          memberships(
+            *,
+            payments(*)
+          )
         `)
         .eq('id', id)
         .single()
@@ -90,6 +111,20 @@ export function useCustomers() {
     return updateCustomer(id, { is_deleted: true })
   }
 
+  const deleteMembership = async (id) => {
+    try {
+      setLoading(true)
+      const { error } = await supabase.from('memberships').delete().eq('id', id)
+      if (error) throw error
+      return { error: null }
+    } catch (err) {
+      setError(err.message)
+      return { error: err }
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return {
     customers,
     loading,
@@ -98,6 +133,7 @@ export function useCustomers() {
     fetchCustomerById,
     addCustomer,
     updateCustomer,
-    deleteCustomer
+    deleteCustomer,
+    deleteMembership
   }
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { Edit, History, Calendar, CreditCard, Activity, Trash2 } from 'lucide-react'
+import { Edit, History, Calendar, CreditCard, Activity, Trash2, ArrowLeft } from 'lucide-react'
 import { useCustomers } from '@/hooks/useCustomers'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,11 +8,12 @@ import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { ActionButtons } from '@/components/shared/ActionButtons'
 import { ExpiryBadge } from '@/components/shared/ExpiryBadge'
 import { calculateDaysRemaining, getInitials, formatCurrency } from '@/lib/utils'
+import { Badge } from '@/components/ui/badge'
 
 export function CustomerDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { fetchCustomerById, deleteCustomer } = useCustomers()
+  const { fetchCustomerById, deleteCustomer, deleteMembership } = useCustomers()
   const [customer, setCustomer] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -32,179 +33,211 @@ export function CustomerDetailPage() {
   const currentMembership = memberships.find(m => m.status === 'active') || memberships[0]
   const allPayments = customer.payments?.sort((a, b) => new Date(b.payment_date) - new Date(a.payment_date)) || []
 
+  const handleDeleteCustomer = async () => {
+    if (window.confirm(`Are you sure you want to delete ${customer.name}? This action cannot be undone.`)) {
+      await deleteCustomer(id)
+      navigate('/admin/customers')
+    }
+  }
+
+  const handleDeleteMembership = async (membershipId) => {
+    if (window.confirm('Are you sure you want to delete this membership record?')) {
+      await deleteMembership(membershipId)
+      window.location.reload()
+    }
+  }
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-foreground">Member Profile</h2>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild className="border-border hover:bg-secondary">
-            <Link to={`/admin/customers/${id}/edit`}>
-              <Edit className="w-4 h-4 mr-2" /> Edit
-            </Link>
-          </Button>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Back button + Title + Actions */}
+      <div className="space-y-3">
+        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="text-muted-foreground -ml-2">
+          <ArrowLeft className="w-4 h-4 mr-1" /> Back
+        </Button>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground">Member Profile</h2>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button variant="outline" asChild className="border-border hover:bg-secondary flex-1 sm:flex-none text-sm h-9">
+              <Link to={`/admin/customers/${id}/edit`}>
+                <Edit className="w-4 h-4 mr-1.5" /> Edit
+              </Link>
+            </Button>
+            <Button variant="outline" onClick={handleDeleteCustomer} className="border-red-500/20 text-red-500 hover:bg-red-500/10 flex-1 sm:flex-none text-sm h-9">
+              <Trash2 className="w-4 h-4 mr-1.5" /> Delete
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Col 1: Profile Details */}
-        <Card className="bg-card border-border">
-          <CardContent className="p-6">
-            <div className="flex flex-col items-center text-center pb-6 border-b border-border">
-              <div className="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center text-primary font-bold text-3xl mb-4">
-                {getInitials(customer.name)}
-              </div>
-              <h3 className="text-2xl font-bold text-foreground">{customer.name}</h3>
-              <p className="text-muted-foreground">{customer.phone}</p>
-              <div className="mt-4">
+      {/* Profile Header Card - Mobile optimized */}
+      <Card className="bg-card border-border">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary/20 border-2 border-primary/50 flex items-center justify-center text-primary font-bold text-2xl sm:text-3xl shrink-0">
+              {getInitials(customer.name)}
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-xl sm:text-2xl font-bold text-foreground truncate">{customer.name}</h3>
+              <p className="text-muted-foreground text-sm">{customer.phone}</p>
+              <div className="mt-2">
                 <ActionButtons phone={customer.phone} whatsapp={customer.whatsapp} />
               </div>
             </div>
+          </div>
 
-            <div className="pt-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Age</p>
-                  <p className="font-medium text-foreground">{customer.age || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Gender</p>
-                  <p className="font-medium text-foreground">{customer.gender || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Weight</p>
-                  <p className="font-medium text-foreground">{customer.weight ? `${customer.weight} kg` : 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Height</p>
-                  <p className="font-medium text-foreground">{customer.height ? `${customer.height} cm` : 'N/A'}</p>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Address</p>
-                <p className="text-sm font-medium text-foreground">{customer.address || 'Not provided'}</p>
-              </div>
-
-              {customer.medical && (
-                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                  <p className="text-xs text-red-500 font-semibold mb-1 flex items-center"><Activity className="w-3 h-3 mr-1" /> Medical Notes</p>
-                  <p className="text-sm text-red-400">{customer.medical}</p>
-                </div>
-              )}
-
-              {(customer.emergency_name || customer.emergency_phone) && (
-                <div className="p-3 bg-secondary/50 rounded-lg border border-border">
-                  <p className="text-xs text-muted-foreground mb-1">Emergency Contact</p>
-                  <p className="text-sm font-medium text-foreground">{customer.emergency_name || 'Unknown'}</p>
-                  <p className="text-sm text-muted-foreground">{customer.emergency_phone || 'No number'}</p>
-                </div>
-              )}
+          {/* Quick info grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 pt-5 border-t border-border">
+            <div>
+              <p className="text-xs text-muted-foreground">Age</p>
+              <p className="text-sm font-medium text-foreground">{customer.age || 'N/A'}</p>
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <p className="text-xs text-muted-foreground">Gender</p>
+              <p className="text-sm font-medium text-foreground">{customer.gender || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Weight</p>
+              <p className="text-sm font-medium text-foreground">{customer.weight ? `${customer.weight} kg` : 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Height</p>
+              <p className="text-sm font-medium text-foreground">{customer.height ? `${customer.height} cm` : 'N/A'}</p>
+            </div>
+          </div>
 
-        {/* Col 2: Current Membership */}
-        <Card className="bg-card border-border lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xl">Current Plan</CardTitle>
-            {currentMembership && <ExpiryBadge daysRemaining={calculateDaysRemaining(currentMembership.end_date)} />}
-          </CardHeader>
-          <CardContent>
-            {currentMembership ? (
-              <div className="space-y-6">
-                <div className="flex flex-col md:flex-row justify-between gap-6 p-6 bg-secondary/30 rounded-xl border border-border">
-                  <div>
-                    <p className="text-muted-foreground text-sm font-medium mb-1">Plan Name</p>
-                    <h4 className="text-2xl font-bold text-foreground flex items-center">
-                      <Calendar className="w-5 h-5 mr-2 text-primary" />
-                      {currentMembership.plan_name}
+          {/* Extra info */}
+          {customer.address && (
+            <div className="mt-4 p-3 bg-secondary/30 rounded-lg">
+              <p className="text-xs text-muted-foreground mb-0.5">Address</p>
+              <p className="text-sm text-foreground">{customer.address}</p>
+            </div>
+          )}
+
+          {customer.medical && (
+            <div className="mt-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+              <p className="text-xs text-red-500 font-semibold mb-0.5 flex items-center"><Activity className="w-3 h-3 mr-1" /> Medical Notes</p>
+              <p className="text-sm text-red-400">{customer.medical}</p>
+            </div>
+          )}
+
+          {(customer.emergency_name || customer.emergency_phone) && (
+            <div className="mt-3 p-3 bg-secondary/30 rounded-lg border border-border">
+              <p className="text-xs text-muted-foreground mb-0.5">Emergency Contact</p>
+              <p className="text-sm font-medium text-foreground">{customer.emergency_name || 'Unknown'} · {customer.emergency_phone || 'No number'}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Current Plan */}
+      <Card className="bg-card border-border">
+        <CardHeader className="flex flex-row items-center justify-between pb-3">
+          <CardTitle className="text-lg">Current Plan</CardTitle>
+          {currentMembership && <ExpiryBadge daysRemaining={calculateDaysRemaining(currentMembership.end_date)} />}
+        </CardHeader>
+        <CardContent>
+          {currentMembership ? (
+            <div className="space-y-4">
+              {/* Plan info */}
+              <div className="p-4 bg-secondary/30 rounded-xl border border-border">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-muted-foreground">Plan</p>
+                    <h4 className="text-lg sm:text-xl font-bold text-foreground flex items-center mt-0.5">
+                      <Calendar className="w-4 h-4 mr-1.5 text-primary shrink-0" />
+                      <span className="truncate">{currentMembership.plan_name}</span>
                     </h4>
-                    <div className="mt-4 space-y-1 text-sm">
-                      <p><span className="text-muted-foreground">Start:</span> <span className="text-foreground font-medium">{new Date(currentMembership.start_date).toLocaleDateString()}</span></p>
-                      <p><span className="text-muted-foreground">End:</span> <span className="text-foreground font-medium">{new Date(currentMembership.end_date).toLocaleDateString()}</span></p>
+                    <div className="mt-3 space-y-1 text-sm">
+                      <p><span className="text-muted-foreground">Start:</span> <span className="text-foreground font-medium">{new Date(currentMembership.start_date).toLocaleDateString('en-IN')}</span></p>
+                      <p><span className="text-muted-foreground">End:</span> <span className="text-foreground font-medium">{new Date(currentMembership.end_date).toLocaleDateString('en-IN')}</span></p>
                     </div>
                   </div>
-                  
-                  <div className="flex flex-col items-end justify-center">
-                    <p className="text-sm text-muted-foreground mb-2">Days Remaining</p>
-                    <div className={`text-5xl font-black ${calculateDaysRemaining(currentMembership.end_date) <= 5 ? 'text-amber-500' : 'text-primary'}`}>
+                  <div className="text-right shrink-0">
+                    <p className="text-xs text-muted-foreground">Days Left</p>
+                    <div className={`text-3xl sm:text-4xl font-black ${calculateDaysRemaining(currentMembership.end_date) <= 5 ? 'text-amber-500' : 'text-primary'}`}>
                       {Math.max(0, calculateDaysRemaining(currentMembership.end_date))}
                     </div>
-                    <Button asChild className="mt-4 bg-primary hover:bg-primary/90 text-primary-foreground">
-                      <Link to={`/admin/customers/${id}/renew`}>Renew Now</Link>
-                    </Button>
                   </div>
                 </div>
 
-                {/* Payments for current membership */}
-                <div>
-                  <h4 className="font-semibold text-foreground mb-3 flex items-center">
-                    <CreditCard className="w-4 h-4 mr-2" /> Payment Details
-                  </h4>
-                  <div className="space-y-3">
-                    {allPayments.filter(p => p.membership_id === currentMembership.id).map(payment => (
-                      <div key={payment.id} className="flex justify-between items-center p-3 rounded-lg border border-border bg-background">
-                        <div>
-                          <p className="font-medium text-foreground">{formatCurrency(payment.paid_amount)} paid via {payment.payment_method}</p>
-                          <p className="text-xs text-muted-foreground">{new Date(payment.payment_date).toLocaleDateString()}</p>
-                        </div>
-                        {payment.due_amount > 0 ? (
-                          <div className="text-right">
-                            <p className="text-xs text-muted-foreground">Due Amount</p>
-                            <p className="font-bold text-red-500">{formatCurrency(payment.due_amount)}</p>
-                          </div>
-                        ) : (
-                          <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">Fully Paid</Badge>
-                        )}
+                {/* Actions */}
+                <div className="flex gap-2 mt-4 pt-3 border-t border-border/50">
+                  <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground flex-1 h-9 text-sm">
+                    <Link to={`/admin/customers/${id}/renew`}>Modify / Renew</Link>
+                  </Button>
+                  <Button size="icon" variant="outline" onClick={() => handleDeleteMembership(currentMembership.id)} className="border-red-500/20 text-red-500 hover:bg-red-500/10 shrink-0 h-9 w-9" title="Delete Membership">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Payment Details */}
+              <div>
+                <h4 className="font-semibold text-foreground mb-3 flex items-center text-sm">
+                  <CreditCard className="w-4 h-4 mr-1.5" /> Payment Details
+                </h4>
+                <div className="space-y-2">
+                  {allPayments.filter(p => p.membership_id === currentMembership.id).map(payment => (
+                    <div key={payment.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-lg border border-border bg-background">
+                      <div className="min-w-0">
+                        <p className="font-medium text-foreground text-sm truncate">{formatCurrency(payment.paid_amount)} via {payment.payment_method}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(payment.payment_date).toLocaleDateString('en-IN')}</p>
                       </div>
-                    ))}
-                  </div>
+                      {payment.due_amount > 0 ? (
+                        <Badge className="bg-red-500/15 text-red-400 border-red-500/30 text-xs self-start sm:self-center">₹{payment.due_amount} Due</Badge>
+                      ) : (
+                        <Badge className="bg-green-500/15 text-green-400 border-green-500/30 text-xs self-start sm:self-center">Fully Paid</Badge>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground mb-4">No active membership found.</p>
-                <Button asChild>
-                  <Link to={`/admin/customers/${id}/renew`}>Assign Membership</Link>
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4 text-sm">No active membership found.</p>
+              <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                <Link to={`/admin/customers/${id}/renew`}>Assign Membership</Link>
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-        {/* Col 3: History (Full width below) */}
-        <Card className="bg-card border-border lg:col-span-3">
-          <CardHeader>
-            <CardTitle className="flex items-center text-lg">
-              <History className="w-5 h-5 mr-2" /> Membership History
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {memberships.length === 0 ? (
-              <p className="text-muted-foreground">No history available.</p>
-            ) : (
-              <div className="space-y-4">
-                {memberships.map((membership, i) => (
-                  <div key={membership.id} className={`flex flex-col md:flex-row justify-between items-start md:items-center p-4 rounded-xl border ${i === 0 ? 'border-primary/50 bg-primary/5' : 'border-border bg-secondary/20'}`}>
-                    <div>
-                      <h4 className="font-semibold text-foreground text-lg">{membership.plan_name}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(membership.start_date).toLocaleDateString()} - {new Date(membership.end_date).toLocaleDateString()}
+      {/* Membership History */}
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="flex items-center text-lg">
+            <History className="w-4 h-4 mr-2" /> History
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {memberships.length === 0 ? (
+            <p className="text-muted-foreground text-sm">No history available.</p>
+          ) : (
+            <div className="space-y-3">
+              {memberships.map((membership, i) => (
+                <div key={membership.id} className={`p-3 sm:p-4 rounded-xl border ${i === 0 ? 'border-primary/40 bg-primary/5' : 'border-border bg-secondary/10'}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h4 className="font-semibold text-foreground text-base truncate">{membership.plan_name}</h4>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {new Date(membership.start_date).toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'2-digit'})} → {new Date(membership.end_date).toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'2-digit'})}
                       </p>
                     </div>
-                    <div className="flex items-center gap-4 mt-4 md:mt-0">
-                      <p className="font-bold text-foreground">{formatCurrency(membership.amount)}</p>
-                      <Badge variant="outline" className={membership.status === 'active' ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}>
-                        {membership.status.toUpperCase()}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="font-bold text-foreground text-sm">{formatCurrency(membership.amount)}</span>
+                      <Badge className={`text-[11px] ${membership.status === 'active' ? 'bg-green-500/15 text-green-400 border-green-500/30' : 'bg-red-500/15 text-red-400 border-red-500/30'}`}>
+                        {membership.status === 'active' ? 'Active' : 'Expired'}
                       </Badge>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

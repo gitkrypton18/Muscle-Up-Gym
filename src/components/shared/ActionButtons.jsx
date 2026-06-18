@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button'
 
 export function ActionButtons({ phone, whatsapp }) {
   const handleCall = (e) => {
+    e.preventDefault()
     e.stopPropagation()
     window.location.href = `tel:+91${phone}`
   }
 
   const handleWhatsApp = (e) => {
+    e.preventDefault()
     e.stopPropagation()
     const waNumber = whatsapp || phone
     window.open(`https://wa.me/91${waNumber}`, '_blank')

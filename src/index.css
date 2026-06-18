@@ -4,57 +4,57 @@
 
 @layer base {
   :root {
-    --background: 0 0% 4%; /* #0A0A0A */
-    --foreground: 0 0% 100%;
+    --background: 220 16% 7%;
+    --foreground: 210 20% 98%;
 
-    --card: 0 0% 8%; /* #141414 */
-    --card-foreground: 0 0% 100%;
+    --card: 220 16% 9%;
+    --card-foreground: 210 20% 98%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 220 16% 9%;
+    --popover-foreground: 210 20% 98%;
 
-    --primary: 32 68% 50%; /* #D4852C */
-    --primary-foreground: 0 0% 0%;
+    --primary: 32 95% 55%;
+    --primary-foreground: 0 0% 10%;
 
-    --secondary: 0 0% 16%; /* #2A2A2A */
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 220 16% 14%;
+    --secondary-foreground: 210 20% 98%;
 
-    --muted: 0 0% 16%;
-    --muted-foreground: 240 5% 65%; /* Zinc-400 equivalent */
+    --muted: 220 16% 14%;
+    --muted-foreground: 215 14% 65%;
 
-    --accent: 32 68% 50%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 32 95% 55%;
+    --accent-foreground: 0 0% 10%;
 
-    --destructive: 0 84% 60%; /* #EF4444 */
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 16%; /* #2A2A2A */
-    --input: 0 0% 16%; /* #2A2A2A */
-    --ring: 32 68% 50%;
+    --border: 220 16% 16%;
+    --input: 220 16% 16%;
+    --ring: 32 95% 55%;
 
-    --radius: 0.75rem; /* 12px border radius */
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 100%;
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 100%;
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 32 68% 50%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 0 0% 16%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 16%;
-    --muted-foreground: 240 5% 65%;
-    --accent: 32 68% 50%;
-    --accent-foreground: 0 0% 0%;
+    --background: 220 16% 7%;
+    --foreground: 210 20% 98%;
+    --card: 220 16% 9%;
+    --card-foreground: 210 20% 98%;
+    --popover: 220 16% 9%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 32 95% 55%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 220 16% 14%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 220 16% 14%;
+    --muted-foreground: 215 14% 65%;
+    --accent: 32 95% 55%;
+    --accent-foreground: 0 0% 10%;
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 16%;
-    --input: 0 0% 16%;
-    --ring: 32 68% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 16% 16%;
+    --input: 220 16% 16%;
+    --ring: 32 95% 55%;
   }
 }
 
@@ -63,6 +63,54 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground selection:bg-primary/30;
+    background-image: radial-gradient(circle at 50% 0%, rgba(212, 133, 44, 0.08) 0%, transparent 50%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Prevent iOS text size adjust */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Prevent tap highlight on mobile */
+  a, button {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-card/60 backdrop-blur-md border border-white/5 shadow-xl;
+  }
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-sm border border-white/5 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300;
+  }
+
+  /* Hide scrollbar for filter tabs */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Safe area for mobile bottom */
+  .pb-safe {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Custom Scrollbar for desktop */
+@media (hover: hover) {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40;
   }
 }

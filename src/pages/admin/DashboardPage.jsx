@@ -1,125 +1,136 @@
 import React from 'react'
+import { BarChart, Bar, XAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { Link } from 'react-router-dom'
-import { Users, UserCheck, AlertTriangle, XCircle, CreditCard, UserPlus, Phone, MessageCircle, Eye } from 'lucide-react'
+import { Users, UserCheck, AlertTriangle, XCircle, CreditCard, UserPlus } from 'lucide-react'
 import { useStats } from '@/hooks/useStats'
 import { StatCard } from '@/components/shared/StatCard'
 import { ExpiryBadge } from '@/components/shared/ExpiryBadge'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { formatCurrency, calculateDaysRemaining } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ActionButtons } from '@/components/shared/ActionButtons'
+import { Badge } from '@/components/ui/badge'
 
 export function DashboardPage() {
   const { stats, loading } = useStats()
 
   if (loading) return <LoadingSpinner />
 
+  const attentionCount = stats.attentionMembers?.length || 0
+
   return (
-    <div className="space-y-6">
-      {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <StatCard
-          title="Total Members"
-          value={stats.totalMembers}
-          icon={Users}
-          color="blue"
-        />
-        <StatCard
-          title="Active Members"
-          value={stats.activeMembers}
-          icon={UserCheck}
-          color="green"
-        />
-        <StatCard
-          title="Expiring Soon (5 days)"
-          value={stats.expiringSoon}
-          icon={AlertTriangle}
-          color="orange"
-        />
-        <StatCard
-          title="Expired Memberships"
-          value={stats.expired}
-          icon={XCircle}
-          color="red"
-        />
-        <StatCard
-          title="Payment Pending"
-          value={formatCurrency(stats.paymentPending)}
-          icon={CreditCard}
-          color="yellow"
-        />
-        <StatCard
-          title="New This Month"
-          value={stats.newThisMonth}
-          icon={UserPlus}
-          color="purple"
-        />
+    <div className="space-y-5">
+      {/* Stats Grid - 2 columns on mobile, 3 on desktop */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+        <StatCard title="Total Members" value={stats.totalMembers} icon={Users} color="blue" />
+        <StatCard title="Active" value={stats.activeMembers} icon={UserCheck} color="green" />
+        <StatCard title="Expiring Soon" value={stats.expiringSoon} icon={AlertTriangle} color="orange" />
+        <StatCard title="Expired" value={stats.expired} icon={XCircle} color="red" />
+        <StatCard title="Pending ₹" value={formatCurrency(stats.paymentPending)} icon={CreditCard} color="yellow" />
+        <StatCard title="New This Month" value={stats.newThisMonth} icon={UserPlus} color="purple" />
       </div>
 
-      {/* Action Center - Expiring Soon */}
+      {/* Analytics Chart */}
       <Card className="border-border bg-card">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="text-xl text-foreground">Needs Attention: Expiring Soon</CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              Memberships expiring within the next 5 days.
-            </p>
-          </div>
-          {stats.expiringMembers?.length > 0 && (
-            <div className="bg-amber-500/10 text-amber-500 px-4 py-2 rounded-lg text-sm font-medium border border-amber-500/20">
-              {stats.expiringMembers.length} member(s) to call
-            </div>
-          )}
+        <CardHeader className="pb-2 px-4 sm:px-6 pt-4 sm:pt-6">
+          <CardTitle className="text-base sm:text-lg text-foreground">Membership Overview</CardTitle>
         </CardHeader>
-        <CardContent>
-          {stats.expiringMembers?.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <UserCheck className="w-12 h-12 mx-auto opacity-20 mb-3" />
-              <p>No memberships are expiring soon.</p>
+        <CardContent className="px-4 sm:px-6 pb-4 sm:pt-4">
+          <div className="h-[200px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={[
+                { name: 'Active', count: stats.activeMembers, fill: '#eab308' }, // primary color
+                { name: 'Expiring', count: stats.expiringSoon, fill: '#f59e0b' }, // amber
+                { name: 'Expired', count: stats.expired, fill: '#ef4444' } // red
+              ]}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                <Tooltip 
+                  cursor={{ fill: '#334155', opacity: 0.2 }}
+                  contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px' }}
+                  itemStyle={{ color: '#f8fafc' }}
+                />
+                <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={50} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Attention Section - shows both expired & expiring members */}
+      <Card className="border-border bg-card">
+        <CardHeader className="pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <CardTitle className="text-base sm:text-lg text-foreground">⚠️ Needs Attention</CardTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Expired, expiring, or unpaid memberships
+              </p>
+            </div>
+            {attentionCount > 0 && (
+              <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30 shrink-0">
+                {attentionCount}
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
+          {attentionCount === 0 ? (
+            <div className="text-center py-6 text-muted-foreground">
+              <UserCheck className="w-10 h-10 mx-auto opacity-20 mb-2" />
+              <p className="text-sm">All memberships are healthy 🎉</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableHead>Member</TableHead>
-                    <TableHead>Plan</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {stats.expiringMembers.map((member) => (
-                    <TableRow key={member.id} className="border-border hover:bg-secondary/50 transition-colors">
-                      <TableCell>
-                        <div>
-                          <p className="font-medium text-foreground">{member.name}</p>
-                          <p className="text-sm text-muted-foreground">{member.phone}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <p className="text-foreground">{member.plan_name}</p>
-                        <p className="text-sm text-muted-foreground">End: {new Date(member.end_date).toLocaleDateString()}</p>
-                      </TableCell>
-                      <TableCell>
-                        <ExpiryBadge daysRemaining={calculateDaysRemaining(member.end_date)} />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end items-center gap-2">
-                          <ActionButtons phone={member.phone} whatsapp={member.whatsapp} />
-                          <Button variant="outline" size="icon" asChild className="h-8 w-8 border-border">
-                            <Link to={`/admin/customers/${member.id}`}>
-                              <Eye className="w-4 h-4 text-muted-foreground" />
-                            </Link>
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <div className="space-y-2">
+              {stats.attentionMembers.map((member, idx) => {
+                const daysLeft = calculateDaysRemaining(member.end_date)
+                const isExpired = member._attentionType === 'expired'
+                const isUnpaid = member._attentionType === 'unpaid'
+
+                return (
+                  <Link
+                    key={`${member.id}-${idx}`}
+                    to={`/admin/customers/${member.id}`}
+                    className={`flex items-center gap-3 p-3 border rounded-xl transition-colors active:scale-[0.99] ${
+                      isExpired || isUnpaid
+                        ? 'border-red-500/25 hover:bg-red-500/5'
+                        : 'border-amber-500/25 hover:bg-amber-500/5'
+                    }`}
+                  >
+                    {/* Avatar */}
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 border ${
+                      isExpired || isUnpaid
+                        ? 'bg-red-500/15 text-red-400 border-red-500/30'
+                        : 'bg-amber-500/15 text-amber-400 border-amber-500/30'
+                    }`}>
+                      {member.name?.charAt(0)?.toUpperCase() || '?'}
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-foreground text-sm truncate">{member.name}</p>
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                        <span className="bg-secondary text-foreground text-[10px] px-1.5 py-0.5 rounded border border-border">{member.plan_name}</span>
+                        {isUnpaid && (
+                          <Badge className="bg-red-500/15 text-red-400 border-red-500/30 text-[10px] px-1.5 py-0">
+                            ₹{member.due_amount} Due
+                          </Badge>
+                        )}
+                        {isExpired ? (
+                          <Badge className="bg-red-500/15 text-red-400 border-red-500/30 text-[10px] px-1.5 py-0">Expired</Badge>
+                        ) : (
+                          <ExpiryBadge daysRemaining={daysLeft} />
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Call/WhatsApp - prevent link navigation */}
+                    <div className="shrink-0" onClick={(e) => e.preventDefault()}>
+                      <ActionButtons phone={member.phone} whatsapp={member.whatsapp} />
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
           )}
         </CardContent>

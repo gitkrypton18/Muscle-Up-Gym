@@ -12,15 +12,30 @@ export function StatCard({ title, value, icon: Icon, color }) {
     yellow: 'bg-yellow-500/10 text-yellow-500',
   }
 
+  const glowMap = {
+    green: 'bg-green-500',
+    orange: 'bg-orange-500',
+    red: 'bg-red-500',
+    blue: 'bg-blue-500',
+    purple: 'bg-purple-500',
+    yellow: 'bg-yellow-500',
+  }
+
   return (
-    <Card className="bg-card border-border hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-      <CardContent className="p-6 flex items-center justify-between">
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
-          <h3 className="text-2xl font-bold text-foreground">{value}</h3>
+    <Card className="glass-card group overflow-hidden relative">
+      {/* Decorative gradient blob */}
+      <div className={cn(
+        "absolute -right-4 -top-4 w-20 h-20 rounded-full blur-2xl opacity-20 transition-all duration-500 group-hover:scale-150",
+        glowMap[color] || glowMap.blue
+      )} />
+
+      <CardContent className="p-4 sm:p-5 flex items-center justify-between relative z-10 gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">{title}</p>
+          <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-foreground tracking-tight truncate mt-0.5">{value}</h3>
         </div>
-        <div className={cn("p-3 rounded-full", colorStyles[color] || colorStyles.blue)}>
-          <Icon className="w-6 h-6" />
+        <div className={cn("p-2.5 sm:p-3 rounded-xl transition-all duration-300 shrink-0", colorStyles[color] || colorStyles.blue)}>
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
         </div>
       </CardContent>
     </Card>
