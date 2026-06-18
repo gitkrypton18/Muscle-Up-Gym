@@ -87,6 +87,16 @@ export function DashboardPage() {
                 const isExpired = member._attentionType === 'expired'
                 const isUnpaid = member._attentionType === 'unpaid'
 
+                let waMessage = ''
+                const firstName = member.name?.split(' ')[0] || 'Member'
+                if (isUnpaid) {
+                   waMessage = `Hi ${firstName}, this is a gentle reminder that you have a pending due of ₹${member.due_amount} for your gym membership. Please clear it at the earliest. Thank you! 💪`
+                } else if (isExpired) {
+                   waMessage = `Hi ${firstName}, your MuscleUp Gym membership has expired. We'd love to see you back in the gym! Please renew your membership. 🏃‍♂️`
+                } else {
+                   waMessage = `Hi ${firstName}, your MuscleUp Gym membership expires in ${daysLeft} days. Please renew it soon to continue your fitness journey without interruption! 🏋️‍♂️`
+                }
+
                 return (
                   <Link
                     key={`${member.id}-${idx}`}
@@ -126,7 +136,7 @@ export function DashboardPage() {
 
                     {/* Call/WhatsApp - prevent link navigation */}
                     <div className="shrink-0" onClick={(e) => e.preventDefault()}>
-                      <ActionButtons phone={member.phone} whatsapp={member.whatsapp} />
+                      <ActionButtons phone={member.phone} whatsapp={member.whatsapp} message={waMessage} />
                     </div>
                   </Link>
                 )

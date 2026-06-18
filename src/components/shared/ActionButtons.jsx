@@ -2,7 +2,7 @@ import React from 'react'
 import { Phone, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-export function ActionButtons({ phone, whatsapp }) {
+export function ActionButtons({ phone, whatsapp, message }) {
   const handleCall = (e) => {
     e.preventDefault()
     e.stopPropagation()
@@ -13,7 +13,8 @@ export function ActionButtons({ phone, whatsapp }) {
     e.preventDefault()
     e.stopPropagation()
     const waNumber = whatsapp || phone
-    window.open(`https://wa.me/91${waNumber}`, '_blank')
+    const textParam = message ? `?text=${encodeURIComponent(message)}` : ''
+    window.open(`https://wa.me/91${waNumber}${textParam}`, '_blank')
   }
 
   return (
