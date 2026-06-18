@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge'
 export function CustomerDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { fetchCustomerById, deleteCustomer, deleteMembership } = useCustomers()
+  const { fetchCustomerById, deleteCustomer, deleteMembership, settlePaymentDue } = useCustomers()
   const [customer, setCustomer] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -184,7 +184,22 @@ export function CustomerDetailPage() {
                         <p className="text-xs text-muted-foreground">{new Date(payment.payment_date).toLocaleDateString('en-IN')}</p>
                       </div>
                       {payment.due_amount > 0 ? (
-                        <Badge className="bg-red-500/15 text-red-400 border-red-500/30 text-xs self-start sm:self-center">₹{payment.due_amount} Due</Badge>
+                        <div className="flex items-center gap-2 self-start sm:self-center">
+                          <Badge className="bg-red-500/15 text-red-400 border-red-500/30 text-xs">₹{payment.due_amount} Due</Badge>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-6 text-[10px] px-2 border-green-500/30 text-green-500 hover:bg-green-500/10"
+                            onClick={async () => {
+                              if (window.confirm(`Settle pending due of ₹${payment.due_amount} for this payment?`)) {
+                                await settlePaymentDue(payment.id, payment.total_amount)
+                                window.location.reload()
+                              }
+                            }}
+                          >
+                            Settle Due
+                          </Button>
+                        </div>
                       ) : (
                         <Badge className="bg-green-500/15 text-green-400 border-green-500/30 text-xs self-start sm:self-center">Fully Paid</Badge>
                       )}

@@ -111,15 +111,35 @@ export function useCustomers() {
     return updateCustomer(id, { is_deleted: true })
   }
 
-  const deleteMembership = async (id) => {
+  const deleteMembership = async (membershipId) => {
     try {
       setLoading(true)
-      const { error } = await supabase.from('memberships').delete().eq('id', id)
+      const { error } = await supabase
+        .from('memberships')
+        .delete()
+        .eq('id', membershipId)
       if (error) throw error
-      return { error: null }
     } catch (err) {
       setError(err.message)
-      return { error: err }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const settlePaymentDue = async (paymentId, totalAmount) => {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('payments')
+        .update({ due_amount: 0, paid_amount: totalAmount })
+        .eq('id', paymentId)
+        .select()
+        .single()
+      if (error) throw error
+      return { data, error: null }
+    } catch (err) {
+      setError(err.message)
+      return { data: null, error: err }
     } finally {
       setLoading(false)
     }
@@ -134,6 +154,7 @@ export function useCustomers() {
     addCustomer,
     updateCustomer,
     deleteCustomer,
-    deleteMembership
+    deleteMembership,
+    settlePaymentDue
   }
 }
