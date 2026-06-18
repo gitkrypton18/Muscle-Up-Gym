@@ -154,7 +154,7 @@ export function useCustomers() {
       setLoading(true)
       const { data, error } = await supabase
         .from('payments')
-        .update({ due_amount: 0, paid_amount: totalAmount })
+        .update({ paid_amount: totalAmount })
         .eq('id', paymentId)
         .select()
         .single()
