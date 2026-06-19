@@ -51,6 +51,27 @@ CREATE POLICY "Allow anon update media" ON public.community_media FOR UPDATE USI
 CREATE POLICY "Allow anon delete media" ON public.community_media FOR DELETE USING (true);
 CREATE POLICY "Allow anon select all media" ON public.community_media FOR SELECT USING (true);
 
+-- 3. Create the Leads table
+CREATE TABLE IF NOT EXISTS public.leads (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    message TEXT,
+    status TEXT DEFAULT 'new' CHECK (status IN ('new', 'called', 'converted', 'not_interested'))
+);
+
+ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
+
+-- Allow public insert (for Enquiry Form submissions)
+CREATE POLICY "Allow public insert to leads" ON public.leads
+    FOR INSERT WITH CHECK (true);
+
+-- Allow select/update/delete for the app (matches the testimonial bypass policies)
+CREATE POLICY "Allow anon select leads" ON public.leads FOR SELECT USING (true);
+CREATE POLICY "Allow anon update leads" ON public.leads FOR UPDATE USING (true);
+CREATE POLICY "Allow anon delete leads" ON public.leads FOR DELETE USING (true);
+
 -- ==========================================
 -- STORAGE BUCKET INSTRUCTIONS
 -- ==========================================
