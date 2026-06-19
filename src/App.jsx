@@ -79,7 +79,7 @@ function App() {
               </Route>
             </Route>
             
-            <Route path="*" element={<Navigate to="/admin/login" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
         <Toaster position="top-right" theme="dark" richColors />
