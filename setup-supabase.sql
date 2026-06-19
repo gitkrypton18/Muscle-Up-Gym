@@ -19,7 +19,7 @@ CREATE POLICY "Allow public read for approved testimonials" ON public.testimonia
 
 -- Allow public insert to testimonials (new submissions go to pending)
 CREATE POLICY "Allow public insert to testimonials" ON public.testimonials
-    FOR INSERT WITH CHECK (status = 'pending');
+    FOR INSERT WITH CHECK (true);
 
 -- Admin bypass (assuming admin uses anon key for now or a specific admin policy)
 -- Note: In a production app, you'd restrict update/delete to authenticated admins only. 

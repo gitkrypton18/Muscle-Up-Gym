@@ -94,12 +94,12 @@ export function TestimonialsPage() {
           rating: formData.rating,
           review: formData.review,
           photo_url: photo_url,
-          status: 'pending' // Enforced by RLS anyway, but good to be explicit
+          status: 'approved' 
         }])
 
       if (insertError) throw insertError
 
-      toast.success('Review submitted successfully! It is now pending admin approval.', { duration: 5000 })
+      toast.success('Review submitted successfully! It is now live.', { duration: 5000 })
       
       // Reset form
       setFormData({ name: '', ig_handle: '', rating: 5, review: '' })
@@ -290,7 +290,7 @@ export function TestimonialsPage() {
               {submitting ? 'Submitting...' : <><Send className="w-6 h-6 mr-3" /> Submit Review</>}
             </Button>
             <p className="text-center text-sm text-muted-foreground mt-2">
-              Note: Your review will be publicly visible after admin approval.
+              Note: Your review will be publicly visible immediately.
             </p>
           </form>
         </motion.div>
