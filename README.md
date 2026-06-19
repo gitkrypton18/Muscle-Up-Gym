@@ -48,7 +48,40 @@ If you want to add screenshots to this file on GitHub:
 | *Dynamic pricing synced from Admin* | *Sleek 3D lead generation form* | *Publicly uploaded photos and reels* |
 
 ### Admin Dashboard
-*The MuscleUp Admin Dashboard is fully functional and handles all business operations securely behind the scenes. (Screenshots omitted to focus on the public-facing portfolio).*
+*The MuscleUp Admin Dashboard handles all business operations securely behind the scenes. It features real-time metrics, automated WhatsApp reminders, and complete member management.*
+
+![Dashboard](screenshots/admin/02-dashboard.png)
+*Dashboard with KPI stats, earnings overview, and the "Needs Attention" alert panel.*
+
+<br/>
+
+![Customers Directory](screenshots/admin/03-customers.png)
+*Customers directory with real-time search, filtering, and quick actions.*
+
+<br/>
+
+![Add Customer Flow](screenshots/admin/04-add-customer.png)
+*Sleek multi-step form for enrolling new members and setting up memberships and payments.*
+
+<br/>
+
+![Customer Profile](screenshots/admin/05-customer-detail.png)
+*Detailed member profile showing payment history, active plans, and WhatsApp automation buttons.*
+
+<br/>
+
+![Earnings & Analytics](screenshots/admin/06-earnings.png)
+*Financial overview tracking monthly revenue, due payments, and cash flow.*
+
+<br/>
+
+![Gym Settings & Plans](screenshots/admin/07-settings.png)
+*Admin settings to manage gym plans, dynamic public website details, and system configurations.*
+
+<br/>
+
+![Secure Login](screenshots/admin/01-login.png)
+*Protected admin portal with secure authentication and phone-gated password recovery.*
 
 ---
 
