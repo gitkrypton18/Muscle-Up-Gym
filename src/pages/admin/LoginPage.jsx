@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Eye, EyeOff, Loader2, Phone, KeyRound, ShieldCheck, X, Lock, User } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Phone, KeyRound, ShieldCheck, X, Lock, User, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 
@@ -422,6 +422,14 @@ export function LoginPage() {
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'LOGIN SECURELY'}
                 </Button>
               </form>
+              
+              <div className="mt-6">
+                <Button variant="outline" asChild className="w-full text-muted-foreground hover:text-foreground">
+                  <Link to="/">
+                    <ArrowLeft className="w-4 h-4 mr-2" /> Back to Main Website
+                  </Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
           

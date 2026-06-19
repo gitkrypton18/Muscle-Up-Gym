@@ -17,6 +17,18 @@ import { RenewMembershipPage } from '@/pages/admin/RenewMembershipPage'
 import { LeadsPage } from '@/pages/admin/LeadsPage'
 import { SettingsPage } from '@/pages/admin/SettingsPage'
 import { EarningsPage } from '@/pages/admin/EarningsPage'
+import { ApprovalsPage } from '@/pages/admin/ApprovalsPage'
+import { TestimonialsManager } from '@/pages/admin/TestimonialsManager'
+
+// Public Pages
+import { PublicLayout } from '@/components/layout/PublicLayout'
+import { HomePage } from '@/pages/public/HomePage'
+import { GalleryPage } from '@/pages/public/GalleryPage'
+import { PlansPage } from '@/pages/public/PlansPage'
+import { EnquiryPage } from '@/pages/public/EnquiryPage'
+import { AboutPage } from '@/pages/public/AboutPage'
+import { TestimonialsPage } from '@/pages/public/TestimonialsPage'
+import { ScrollToTop } from '@/components/shared/ScrollToTop'
 
 const ProtectedRoute = () => {
   const { user, loading, isAdmin } = useAuth()
@@ -35,7 +47,19 @@ function App() {
     <ErrorBoundary>
       <AuthProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<PublicLayout />}>
+              <Route index element={<HomePage />} />
+              <Route path="about" element={<AboutPage />} />
+              <Route path="gallery" element={<GalleryPage />} />
+              <Route path="testimonials" element={<TestimonialsPage />} />
+              <Route path="plans" element={<PlansPage />} />
+              <Route path="enquiry" element={<EnquiryPage />} />
+            </Route>
+
+            {/* Admin Routes */}
             <Route path="/admin/login" element={<LoginPage />} />
             
             <Route path="/admin" element={<ProtectedRoute />}>
@@ -50,6 +74,8 @@ function App() {
                 <Route path="customers/:id/renew" element={<RenewMembershipPage />} />
                 <Route path="leads" element={<LeadsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
+                <Route path="approvals" element={<ApprovalsPage />} />
+                <Route path="testimonials" element={<TestimonialsManager />} />
               </Route>
             </Route>
             

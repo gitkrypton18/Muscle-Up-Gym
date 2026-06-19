@@ -1,6 +1,6 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Users, UserPlus, FileText, Settings, LogOut, IndianRupee } from 'lucide-react'
+import { LayoutDashboard, Users, UserPlus, FileText, Settings, LogOut, IndianRupee, Home, CheckCircle, MessageSquare } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import gymLogo from '@/assets/gym-logo.jpg'
 
@@ -9,7 +9,10 @@ const navItems = [
   { name: 'Earnings', path: '/admin/earnings', icon: IndianRupee },
   { name: 'Customers', path: '/admin/customers', icon: Users },
   { name: 'Add Customer', path: '/admin/customers/add', icon: UserPlus },
-  { name: 'Leads', path: '/admin/leads', icon: FileText },
+  { name: 'Inquiries', path: '/admin/inquiries', icon: FileText },
+  { name: 'Plans', path: '/admin/plans', icon: IndianRupee },
+  { name: 'Approvals', path: '/admin/approvals', icon: CheckCircle },
+  { name: 'Testimonials', path: '/admin/testimonials', icon: MessageSquare },
   { name: 'Settings', path: '/admin/settings', icon: Settings },
 ]
 
@@ -54,8 +57,19 @@ export function Sidebar() {
         })}
       </div>
 
+      {/* Public Site Link */}
+      <div className="p-4 border-t border-border pb-0">
+        <NavLink
+          to="/"
+          className="flex w-full items-center gap-3 px-3 py-2.5 text-muted-foreground rounded-lg hover:bg-secondary hover:text-foreground transition-all duration-150"
+        >
+          <Home className="w-5 h-5" />
+          Back to Website
+        </NavLink>
+      </div>
+
       {/* Logout */}
-      <div className="p-4 border-t border-border">
+      <div className="p-4">
         <button
           onClick={() => signOut()}
           className="flex w-full items-center gap-3 px-3 py-2.5 text-muted-foreground rounded-lg hover:bg-destructive/10 hover:text-destructive transition-all duration-150"
