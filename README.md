@@ -39,12 +39,12 @@ If you want to add screenshots to this file on GitHub:
 
 | Home Page | About & Masters | Testimonials |
 |:---:|:---:|:---:|
-| [Drag & Drop Screenshot Here] | [Drag & Drop Screenshot Here] | [Drag & Drop Screenshot Here] |
+| ![Home Page](screenshots/public/01-home.png) | ![About & Masters](screenshots/public/02-about.png) | ![Testimonials](screenshots/public/03-testimonials.png) |
 | *Hero section with auto-playing video* | *Meet the Masters profile cards* | *Real success stories from the community* |
 
 | Plans & Pricing | Enquiry Form | Gallery |
 |:---:|:---:|:---:|
-| [Drag & Drop Screenshot Here] | [Drag & Drop Screenshot Here] | [Drag & Drop Screenshot Here] |
+| ![Plans & Pricing](screenshots/public/04-plans.png) | ![Enquiry Form](screenshots/public/05-enquiry.png) | ![Gallery](screenshots/public/06-gallery.png) |
 | *Dynamic pricing synced from Admin* | *Sleek 3D lead generation form* | *Publicly uploaded photos and reels* |
 
 ### Admin Dashboard
