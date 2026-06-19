@@ -37,51 +37,43 @@ If you want to add screenshots to this file on GitHub:
 ### Public Website
 *Experience the vibe with our God-Level 3D interface.*
 
-| Home Page | About & Masters | Testimonials |
-|:---:|:---:|:---:|
-| ![Home Page](screenshots/public/01-home.png) | ![About & Masters](screenshots/public/02-about.png) | ![Testimonials](screenshots/public/03-testimonials.png) |
-| *Hero section with auto-playing video* | *Meet the Masters profile cards* | *Real success stories from the community* |
+| Home Page | About & Masters |
+|:---:|:---:|
+| ![Home Page](screenshots/public/01-home.png) | ![About & Masters](screenshots/public/02-about.png) |
+| *Hero section with auto-playing video* | *Meet the Masters profile cards* |
 
-| Plans & Pricing | Enquiry Form | Gallery |
-|:---:|:---:|:---:|
-| ![Plans & Pricing](screenshots/public/04-plans.png) | ![Enquiry Form](screenshots/public/05-enquiry.png) | ![Gallery](screenshots/public/06-gallery.png) |
-| *Dynamic pricing synced from Admin* | *Sleek 3D lead generation form* | *Publicly uploaded photos and reels* |
+| Testimonials | Plans & Pricing |
+|:---:|:---:|
+| ![Testimonials](screenshots/public/03-testimonials.png) | ![Plans & Pricing](screenshots/public/04-plans.png) |
+| *Real success stories from the community* | *Dynamic pricing synced from Admin* |
+
+| Enquiry Form | Gallery |
+|:---:|:---:|
+| ![Enquiry Form](screenshots/public/05-enquiry.png) | ![Gallery](screenshots/public/06-gallery.png) |
+| *Sleek 3D lead generation form* | *Publicly uploaded photos and reels* |
 
 ### Admin Dashboard
 *The MuscleUp Admin Dashboard handles all business operations securely behind the scenes. It features real-time metrics, automated WhatsApp reminders, and complete member management.*
 
-![Dashboard](screenshots/admin/02-dashboard.png)
-*Dashboard with KPI stats, earnings overview, and the "Needs Attention" alert panel.*
+| Secure Login | Dashboard |
+|:---:|:---:|
+| ![Secure Login](screenshots/admin/01-login.png) | ![Dashboard](screenshots/admin/02-dashboard.png) |
+| *Protected admin portal* | *KPI stats and alert panel* |
 
-<br/>
+| Customers Directory | Add Customer Flow |
+|:---:|:---:|
+| ![Customers Directory](screenshots/admin/03-customers.png) | ![Add Customer Flow](screenshots/admin/04-add-customer.png) |
+| *Real-time search and filtering* | *Multi-step enrollment form* |
 
-![Customers Directory](screenshots/admin/03-customers.png)
-*Customers directory with real-time search, filtering, and quick actions.*
+| Customer Profile | Earnings & Analytics |
+|:---:|:---:|
+| ![Customer Profile](screenshots/admin/05-customer-detail.png) | ![Earnings & Analytics](screenshots/admin/06-earnings.png) |
+| *Payment history and WhatsApp integration* | *Monthly revenue and cash flow tracking* |
 
-<br/>
-
-![Add Customer Flow](screenshots/admin/04-add-customer.png)
-*Sleek multi-step form for enrolling new members and setting up memberships and payments.*
-
-<br/>
-
-![Customer Profile](screenshots/admin/05-customer-detail.png)
-*Detailed member profile showing payment history, active plans, and WhatsApp automation buttons.*
-
-<br/>
-
-![Earnings & Analytics](screenshots/admin/06-earnings.png)
-*Financial overview tracking monthly revenue, due payments, and cash flow.*
-
-<br/>
-
-![Gym Settings & Plans](screenshots/admin/07-settings.png)
-*Admin settings to manage gym plans, dynamic public website details, and system configurations.*
-
-<br/>
-
-![Secure Login](screenshots/admin/01-login.png)
-*Protected admin portal with secure authentication and phone-gated password recovery.*
+| Gym Settings & Plans | |
+|:---:|:---:|
+| ![Gym Settings & Plans](screenshots/admin/07-settings.png) | |
+| *Admin settings for public site syncing* | |
 
 ---
 
