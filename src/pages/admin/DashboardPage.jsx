@@ -36,7 +36,7 @@ export function DashboardPage() {
         <StatCard title="Expiring Soon" value={stats.expiringSoon} icon={AlertTriangle} color="orange" onClick={() => navigate('/admin/customers?filter=expiring')} />
         <StatCard title="Expired" value={stats.expired} icon={XCircle} color="red" onClick={() => navigate('/admin/customers?filter=expired')} />
         <StatCard title="Pending ₹" value={formatCurrency(stats.paymentPending)} icon={CreditCard} color="yellow" onClick={() => navigate('/admin/customers?filter=unpaid')} />
-        <StatCard title="Earnings This Month" value={formatCurrency(stats.collectedThisMonth)} icon={Wallet} color="emerald" />
+        <StatCard title="Earnings This Month" value={formatCurrency(0)} icon={Wallet} color="emerald" />
         <StatCard title="New This Month" value={stats.newThisMonth} icon={UserPlus} color="purple" onClick={() => navigate('/admin/customers?filter=all')} />
         <StatCard title="Today's Date" value={new Date().toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })} icon={Calendar} color="indigo" />
       </div>

@@ -16,6 +16,7 @@ import { EditCustomerPage } from '@/pages/admin/EditCustomerPage'
 import { RenewMembershipPage } from '@/pages/admin/RenewMembershipPage'
 import { LeadsPage } from '@/pages/admin/LeadsPage'
 import { SettingsPage } from '@/pages/admin/SettingsPage'
+import { EarningsPage } from '@/pages/admin/EarningsPage'
 
 const ProtectedRoute = () => {
   const { user, loading, isAdmin } = useAuth()
@@ -41,6 +42,7 @@ function App() {
               <Route element={<AdminLayout />}>
                 <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<DashboardPage />} />
+                <Route path="earnings" element={<EarningsPage />} />
                 <Route path="customers" element={<CustomersPage />} />
                 <Route path="customers/add" element={<AddCustomerPage />} />
                 <Route path="customers/:id" element={<CustomerDetailPage />} />

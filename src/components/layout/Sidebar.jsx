@@ -1,11 +1,12 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Users, UserPlus, FileText, Settings, LogOut } from 'lucide-react'
+import { LayoutDashboard, Users, UserPlus, FileText, Settings, LogOut, IndianRupee } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import gymLogo from '@/assets/gym-logo.jpg'
 
 const navItems = [
   { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+  { name: 'Earnings', path: '/admin/earnings', icon: IndianRupee },
   { name: 'Customers', path: '/admin/customers', icon: Users },
   { name: 'Add Customer', path: '/admin/customers/add', icon: UserPlus },
   { name: 'Leads', path: '/admin/leads', icon: FileText },
