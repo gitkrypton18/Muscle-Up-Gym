@@ -27,30 +27,28 @@
 
 ## 📸 Screenshots
 
-> **Note to maintainer:** Drop screenshots into the [`screenshots/pages/`](screenshots/pages/) and [`screenshots/features/`](screenshots/features/) directories and the table below will render them automatically. File naming convention is documented in each folder.
+### How to attach images to this README
+If you want to add screenshots to this file on GitHub:
+1. Open this `README.md` file on GitHub and click the **Edit** (pencil) icon.
+2. Simply **drag and drop** your image file directly into the editor text box.
+3. GitHub will automatically upload the image and generate a markdown link for you (it looks like `![image](https://github.com/user-attachments/assets/...)`).
+4. Replace the `[Drag & Drop Screenshot Here]` text below with that generated link!
 
-### Pages
+### Public Website
+*Experience the vibe with our God-Level 3D interface.*
 
-| Login | Dashboard | Members |
+| Home Page | About & Masters | Testimonials |
 |:---:|:---:|:---:|
-| ![Login Page](screenshots/pages/01-login.png) | ![Dashboard](screenshots/pages/02-dashboard.png) | ![Members](screenshots/pages/03-members.png) |
-| *Secure admin login with forgot-password flow* | *Real-time KPI stats & attention alerts* | *Full member directory with filters & search* |
+| [Drag & Drop Screenshot Here] | [Drag & Drop Screenshot Here] | [Drag & Drop Screenshot Here] |
+| *Hero section with auto-playing video* | *Meet the Masters profile cards* | *Real success stories from the community* |
 
-| Add Member | Member Detail | Renew Membership |
+| Plans & Pricing | Enquiry Form | Gallery |
 |:---:|:---:|:---:|
-| ![Add Member](screenshots/pages/04-add-member.png) | ![Member Detail](screenshots/pages/05-member-detail.png) | ![Renew](screenshots/pages/06-renew.png) |
-| *Multi-step enrollment with couple support* | *Full member profile, history & quick actions* | *Smart renewal with plan & payment selection* |
+| [Drag & Drop Screenshot Here] | [Drag & Drop Screenshot Here] | [Drag & Drop Screenshot Here] |
+| *Dynamic pricing synced from Admin* | *Sleek 3D lead generation form* | *Publicly uploaded photos and reels* |
 
-| Leads | Settings | Forgot Password |
-|:---:|:---:|:---:|
-| ![Leads](screenshots/pages/07-leads.png) | ![Settings](screenshots/pages/08-settings.png) | ![Forgot Password](screenshots/pages/09-forgot-password.png) |
-| *Prospect pipeline with conversion tracking* | *Gym config, password change & CSV export* | *Phone-verified identity gate for password reset* |
-
-### Features
-
-| WhatsApp Automation | Couple Memberships | Expiry Alerts |
-|:---:|:---:|:---:|
-| ![WhatsApp](screenshots/features/whatsapp-automation.png) | ![Couples](screenshots/features/couple-memberships.png) | ![Alerts](screenshots/features/expiry-alerts.png) |
+### Admin Dashboard
+*The MuscleUp Admin Dashboard is fully functional and handles all business operations securely behind the scenes. (Screenshots omitted to focus on the public-facing portfolio).*
 
 ---
 
@@ -60,62 +58,48 @@
 <tr>
 <td width="50%">
 
+### 🌐 Public Portfolio Website
+- **God-Level 3D UI:** Stunning dark-mode aesthetics, Framer Motion animations, glassmorphism, and dynamic video backgrounds.
+- **Dynamic Syncing:** The website automatically pulls Gym Timings, Address, Plans, and Manager Contacts directly from the Admin Dashboard. No hardcoding required!
+- **Hybrid Approval System:** Customers can upload their own gym photos, videos, and testimonials. They go to a "Pending" state in the Admin Dashboard and only appear on the public Gallery/Testimonials pages once an Admin clicks "Approve".
+- **Responsive Design:** Completely optimized for both desktop and mobile viewing with perfect grid snapping and scroll-to-top routing.
+
 ### 🔐 Authentication & Security
 - Supabase email/password auth with JWT sessions
 - Admin-only route guard (`ProtectedRoute`)
 - **Forgot Password** flow with phone-number verification gate
-- Identity reveal (email + user ID) only after phone verification
 - Dual password-reset strategy (live session or magic-link email)
 
 ### 📊 Real-Time Dashboard
-- **8 live KPI stat cards**: Total Members, Active, Expiring Soon, Expired, Pending Payments, Monthly Earnings, New This Month, Today's Date
-- Clickable stat cards navigate to pre-filtered member lists
-- **⚠️ Needs Attention** panel — surfaces expired, expiring (≤5 days), and unpaid members instantly
+- **8 live KPI stat cards**: Total Members, Active, Expiring Soon, Pending Payments, etc.
+- **⚠️ Needs Attention** panel — surfaces expired and unpaid members instantly
 - One-tap WhatsApp reminders straight from the dashboard
-- Owner badge with personalization
+
+</td>
+<td width="50%">
 
 ### 👥 Member Management
 - Full CRUD: Add, View, Edit, Soft-Delete members
 - **Couple Membership support** — link two members to a shared plan, split-card display
 - Real-time search by name or phone
-- Multi-filter tabs: All · Active · Expiring · Expired · Paid · Unpaid
-- Smart sort: expired → expiring → active
 - Initials avatar auto-generated from member name
-
-</td>
-<td width="50%">
 
 ### 💳 Payments & Renewals
 - Record full or partial payments on enrollment
 - Track **due amounts** per member
 - Renew membership with plan change, date override, and payment recording
 - Monthly earnings aggregation (collected this month)
-- Payment history log per member
 
-### 📋 Leads / Prospects Pipeline
-- Add and track gym enquiries & walk-ins
-- Convert leads to full members in one click
-- Status tracking for follow-up management
-
-### 📱 WhatsApp Automation
+### 📱 WhatsApp Automation & Leads
 - Pre-filled WhatsApp message templates per member
 - Dynamic injection of: member name, days remaining, due amount
-- One-tap launch from dashboard attention panel or member card
-- Direct call button alongside WhatsApp
+- Convert leads to full members in one click
 
 ### ⚙️ Settings & Admin Tools
 - Change admin password (authenticated)
-- Gym info editor (name, address, phone, timings) persisted to localStorage
-- **Export active members to CSV** (PapaParse + FileSaver)
-- Developer credit section
-
-### 🎨 UI / UX
-- Premium dark-mode design with amber/gold accent palette
-- Glassmorphism cards and gradient overlays
-- Fully responsive: mobile-first layout
-- Smooth animations, micro-interactions, hover states
-- Toast notifications (Sonner) for every user action
-- Global error boundary with graceful fallback
+- **Community Approvals Tab:** 1-click approve or reject customer photo/video/review uploads.
+- **Testimonials Manager:** Delete approved testimonials or manually add new ones bypassing the public form.
+- Gym info editor (name, address, phone, timings) dynamically syncs to the public site footer and contact pages.
 
 </td>
 </tr>
@@ -129,18 +113,12 @@
 |-------|-----------|---------|
 | **Frontend Framework** | React | `^19.2` |
 | **Build Tool** | Vite | `^8.0` |
-| **Backend / Database** | Supabase (PostgreSQL + Auth + Realtime) | `^2.108` |
+| **Backend / Database** | Supabase (PostgreSQL + Auth + Storage) | `^2.108` |
 | **Styling** | Tailwind CSS | `^3.4` |
 | **Component Library** | shadcn/ui (Radix UI primitives) | Latest |
-| **Routing** | React Router DOM | `^7.18` |
-| **Forms & Validation** | React Hook Form + Zod | `^7.79 / ^4.4` |
+| **Animations** | Framer Motion | `^12.4` |
 | **Icons** | Lucide React | `^1.21` |
-| **Data Fetching** | Custom React hooks (Supabase client) | — |
-| **Charts** | Recharts | `^3.8` |
-| **CSV Export** | PapaParse + FileSaver | `^5.5 / ^2.0` |
-| **Date Utilities** | date-fns | `^4.4` |
-| **Notifications** | Sonner | `^2.0` |
-| **PWA** | vite-plugin-pwa | `^1.3` |
+| **Routing** | React Router DOM | `^7.18` |
 | **Deployment** | Vercel | — |
 
 ---
