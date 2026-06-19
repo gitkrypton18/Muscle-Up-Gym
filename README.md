@@ -312,6 +312,19 @@ After deploying, add your Vercel URL to Supabase:
 
 ---
 
+## ⏰ Keep Supabase Alive (Auto-Ping)
+
+Supabase pauses free-tier databases after 7 days of inactivity. This repository includes a GitHub Action (`.github/workflows/keep-alive.yml`) that automatically pings your database every 2 days to prevent it from sleeping.
+
+**To enable this:**
+1. Go to your GitHub repository → **Settings** → **Secrets and variables** → **Actions**
+2. Add the following **Repository Secrets**:
+   - `VITE_SUPABASE_URL`: *(Your Supabase URL)*
+   - `VITE_SUPABASE_ANON_KEY`: *(Your Supabase Anon Key)*
+3. Go to the **Actions** tab, select **Keep Supabase Alive**, and click **Run workflow** to test it!
+
+---
+
 ## 🔐 Forgot Password Flow
 
 A phone-gated identity verification system was built directly into the login page — no email required to start the process.
