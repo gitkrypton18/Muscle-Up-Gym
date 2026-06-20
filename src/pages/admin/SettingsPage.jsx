@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Download, Save, Loader2, Key, Star } from 'lucide-react'
 import { toast } from 'sonner'
 import Papa from 'papaparse'
@@ -21,10 +21,12 @@ export function SettingsPage() {
 
   const { gymDetails, saveGymDetails } = useGymSettings()
   const [gymForm, setGymForm] = useState(gymDetails)
+  const [prevGymDetails, setPrevGymDetails] = useState(gymDetails)
 
-  useEffect(() => {
+  if (gymDetails !== prevGymDetails) {
+    setPrevGymDetails(gymDetails)
     setGymForm(gymDetails)
-  }, [gymDetails])
+  }
 
   const handlePasswordChange = async (e) => {
     e.preventDefault()

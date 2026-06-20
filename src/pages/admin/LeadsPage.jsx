@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Plus, Trash2, Loader2, MessageCircle, Phone, UserPlus } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Plus, Trash2, Loader2, UserPlus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useLeads } from '@/hooks/useLeads'

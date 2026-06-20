@@ -136,8 +136,50 @@ export function useCustomers() {
   }, [])
 
   const deleteCustomer = useCallback(async (id) => {
-    return updateCustomer(id, { is_deleted: true })
-  }, [updateCustomer])
+    try {
+      setLoading(true)
+      const { data: memberships, error: memError } = await supabase
+        .from('memberships')
+        .select('id')
+        .eq('customer_id', id)
+      
+      if (memError) throw memError
+
+      if (memberships && memberships.length > 0) {
+        const membershipIds = memberships.map(m => m.id)
+        const { data: payments, error: payError } = await supabase
+          .from('payments')
+          .select('due_amount')
+          .in('membership_id', membershipIds)
+          .gt('due_amount', 0)
+
+        if (payError) throw payError
+
+        if (payments && payments.length > 0) {
+          const totalDue = payments.reduce((sum, p) => sum + Number(p.due_amount), 0)
+          if (totalDue > 0) {
+            throw new Error(`Cannot delete member: Outstanding dues of ₹${totalDue} must be paid first.`)
+          }
+        }
+      }
+
+      const { data, error } = await supabase
+        .from('customers')
+        .update({ is_deleted: true })
+        .eq('id', id)
+        .select()
+        .single()
+
+      if (error) throw error
+      return { data, error: null }
+    } catch (err) {
+      setError(err.message)
+      console.error('Error deleting customer:', err)
+      return { data: null, error: err }
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   const deleteMembership = useCallback(async (membershipId) => {
     try {

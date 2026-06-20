@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Wallet, IndianRupee, TrendingDown, CreditCard, Trash2, ArrowDownToLine, Calendar, AlertTriangle } from 'lucide-react'
+import { Wallet, IndianRupee, TrendingDown, CreditCard, Trash2, Calendar, AlertTriangle } from 'lucide-react'
 import { useEarnings } from '@/hooks/useEarnings'
 import { StatCard } from '@/components/shared/StatCard'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Star, MessageSquareQuote, Send, UserCircle2, UploadCloud, AtSign } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -20,12 +20,7 @@ export function TestimonialsPage() {
   const [photoFile, setPhotoFile] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [testimonials, setTestimonials] = useState([])
-  const [loading, setLoading] = useState(true)
   const fileInputRef = useRef(null)
-
-  useEffect(() => {
-    fetchTestimonials()
-  }, [])
 
   const fetchTestimonials = async () => {
     try {
@@ -45,12 +40,15 @@ export function TestimonialsPage() {
           setTestimonials(fallbackTestimonials)
         }
       }
-    } catch (err) {
+    } catch {
       setTestimonials(fallbackTestimonials)
-    } finally {
-      setLoading(false)
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchTestimonials()
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -69,7 +67,7 @@ export function TestimonialsPage() {
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
         const filePath = `testimonials/${fileName}`
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('community_media')
           .upload(filePath, photoFile)
 

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Search, Plus, Trash2, ChevronRight, IndianRupee } from 'lucide-react'
+import { Search, Plus, Trash2, ChevronRight } from 'lucide-react'
 import { useCustomers } from '@/hooks/useCustomers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,6 +9,7 @@ import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { ExpiryBadge } from '@/components/shared/ExpiryBadge'
 import { ActionButtons } from '@/components/shared/ActionButtons'
 import { calculateDaysRemaining, getInitials, generateWhatsAppMessage } from '@/lib/utils'
+import { toast } from 'sonner'
 
 export function CustomersPage() {
   const { customers, loading, fetchCustomers, deleteCustomer } = useCustomers()
@@ -81,21 +82,46 @@ export function CustomersPage() {
     { id: 'unpaid', label: 'Due', count: customers.filter(c => c.due_amount > 0).length },
   ]
 
-  const handleDelete = async (e, id, name) => {
+  const handleDelete = async (e, customerObj) => {
     e.preventDefault()
     e.stopPropagation()
-    if (window.confirm(`Are you sure you want to delete ${name}?`)) {
-      await deleteCustomer(id)
-      fetchCustomers()
+    if (customerObj.due_amount > 0) {
+      toast.error(`Cannot delete ${customerObj.name}: Outstanding dues of ₹${customerObj.due_amount} must be paid first.`)
+      return
+    }
+    if (window.confirm(`Are you sure you want to delete ${customerObj.name}?`)) {
+      const { error } = await deleteCustomer(customerObj.id)
+      if (error) {
+        toast.error(error.message || `Failed to delete ${customerObj.name}`)
+      } else {
+        toast.success(`${customerObj.name} deleted successfully`)
+        fetchCustomers()
+      }
     }
   }
 
   const handleDeleteCouple = async (e, p1, p2) => {
     e.preventDefault()
     e.stopPropagation()
+    if (p1.due_amount > 0 || p2.due_amount > 0) {
+      const duesText = []
+      if (p1.due_amount > 0) duesText.push(`${p1.name} has ₹${p1.due_amount} due`)
+      if (p2.due_amount > 0) duesText.push(`${p2.name} has ₹${p2.due_amount} due`)
+      toast.error(`Cannot delete couple: ${duesText.join(' and ')}. Dues must be settled first.`)
+      return
+    }
     if (window.confirm(`Are you sure you want to delete BOTH ${p1.name} and ${p2.name}?`)) {
-      await deleteCustomer(p1.id)
-      await deleteCustomer(p2.id)
+      const res1 = await deleteCustomer(p1.id)
+      if (res1.error) {
+        toast.error(res1.error.message || `Failed to delete ${p1.name}`)
+        return
+      }
+      const res2 = await deleteCustomer(p2.id)
+      if (res2.error) {
+        toast.error(res2.error.message || `Failed to delete ${p2.name}`)
+        return
+      }
+      toast.success(`Deleted couple ${p1.name} and ${p2.name} successfully`)
       fetchCustomers()
     }
   }
@@ -200,7 +226,7 @@ export function CustomersPage() {
                   </div>
                   <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
                     <ActionButtons phone={customer.phone} whatsapp={customer.whatsapp} message={generateWhatsAppMessage({ name: customer.name, daysLeft, dueAmount: customer.due_amount })} />
-                    <Button variant="outline" size="sm" onClick={(e) => handleDelete(e, customer.id, customer.name)} className="h-8 px-3 border-red-500/20 text-red-400 hover:bg-red-500/10 text-xs">
+                    <Button variant="outline" size="sm" onClick={(e) => handleDelete(e, customer)} className="h-8 px-3 border-red-500/20 text-red-400 hover:bg-red-500/10 text-xs">
                       <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
                     </Button>
                   </div>
@@ -213,8 +239,6 @@ export function CustomersPage() {
               
               const d1 = calculateDaysRemaining(p1.end_date)
               const d2 = calculateDaysRemaining(p2.end_date)
-              
-              const isExpired = d1 < 0 && d2 < 0
               
               return (
                 <div key={`${p1.id}-${p2.id}`} className="block bg-card border border-purple-500/40 bg-purple-500/5 rounded-xl transition-all overflow-hidden">

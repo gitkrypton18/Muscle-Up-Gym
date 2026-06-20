@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { motion } from 'framer-motion'
 import { MapPin, Clock, Phone, Code, Heart, Link as LinkIcon, Building2 } from 'lucide-react'
 import { useGymSettings } from '@/hooks/useGymSettings'

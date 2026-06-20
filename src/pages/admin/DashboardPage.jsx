@@ -1,4 +1,3 @@
-import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Users, UserCheck, AlertTriangle, XCircle, CreditCard, UserPlus, Star, Wallet, Calendar } from 'lucide-react'
 import { useStats } from '@/hooks/useStats'
@@ -9,6 +8,7 @@ import { formatCurrency, calculateDaysRemaining, generateWhatsAppMessage } from 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ActionButtons } from '@/components/shared/ActionButtons'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
 export function DashboardPage() {
   const { stats, loading } = useStats()
@@ -29,6 +29,56 @@ export function DashboardPage() {
          </Badge>
       </div>
 
+      {/* Critical Dues Alert Banner */}
+      {(() => {
+        const duesMembers = stats.attentionMembers?.filter(m => m.due_amount > 0) || []
+        if (duesMembers.length === 0) return null
+
+        return (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 space-y-3">
+            <div className="flex items-center gap-2 text-red-500 font-bold">
+              <AlertTriangle className="w-5 h-5 animate-pulse" />
+              <span>CRITICAL: OUTSTANDING DUES WARNING</span>
+              <span className="text-xs font-normal bg-red-500 text-white px-2 py-0.5 rounded-full ml-auto">
+                {duesMembers.length} Accounts
+              </span>
+            </div>
+            <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1">
+              {duesMembers.map((member, index) => {
+                const daysLeft = calculateDaysRemaining(member.end_date)
+                const isExpired = daysLeft < 0
+                return (
+                  <div key={index} className="flex items-center justify-between gap-3 text-xs bg-background/50 p-2.5 rounded-lg border border-red-500/15">
+                    <div>
+                      <span className="font-semibold text-foreground">{member.name}</span>
+                      <span className="text-muted-foreground mx-1.5">|</span>
+                      <span className="text-muted-foreground">{member.phone}</span>
+                      <div className="mt-1 flex items-center gap-1.5">
+                        <span className="bg-secondary text-foreground text-[10px] px-1.5 py-0.5 rounded border border-border">{member.plan_name}</span>
+                        {isExpired ? (
+                          <span className="text-red-400 font-bold bg-red-500/10 px-1.5 py-0.5 rounded text-[10px]">Expired & Pending</span>
+                        ) : (
+                          <span className="text-amber-400 font-semibold bg-amber-500/10 px-1.5 py-0.5 rounded text-[10px]">{daysLeft} days left</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right flex items-center gap-3">
+                      <div>
+                        <p className="text-[10px] text-muted-foreground">Due Amount</p>
+                        <p className="text-sm font-black text-red-500">₹{member.due_amount}</p>
+                      </div>
+                      <Button asChild size="sm" variant="outline" className="h-8 border-red-500/25 text-red-400 hover:bg-red-500/10 text-[11px] font-semibold">
+                        <Link to={`/admin/customers/${member.id}`}>Settle</Link>
+                      </Button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
+
       {/* Stats Grid - 2 columns on mobile, 3 on desktop */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard title="Total Members" value={stats.totalMembers} icon={Users} color="blue" onClick={() => navigate('/admin/customers?filter=all')} />
@@ -36,7 +86,7 @@ export function DashboardPage() {
         <StatCard title="Expiring Soon" value={stats.expiringSoon} icon={AlertTriangle} color="orange" onClick={() => navigate('/admin/customers?filter=expiring')} />
         <StatCard title="Expired" value={stats.expired} icon={XCircle} color="red" onClick={() => navigate('/admin/customers?filter=expired')} />
         <StatCard title="Pending ₹" value={formatCurrency(stats.paymentPending)} icon={CreditCard} color="yellow" onClick={() => navigate('/admin/customers?filter=unpaid')} />
-        <StatCard title="Earnings This Month" value={formatCurrency(0)} icon={Wallet} color="emerald" />
+        <StatCard title="Earnings This Month" value={formatCurrency(stats.collectedThisMonth || 0)} icon={Wallet} color="emerald" />
         <StatCard title="New This Month" value={stats.newThisMonth} icon={UserPlus} color="purple" onClick={() => navigate('/admin/customers?filter=all')} />
         <StatCard title="Today's Date" value={new Date().toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })} icon={Calendar} color="indigo" />
       </div>

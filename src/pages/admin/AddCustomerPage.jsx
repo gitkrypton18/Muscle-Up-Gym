@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -37,8 +37,8 @@ const customerSchema = z.object({
   
   // Step 2
   plan_name: z.string(),
-  amount: z.coerce.number(),
-  durationDays: z.coerce.number(),
+  amount: z.coerce.number().min(0, 'Total amount cannot be negative'),
+  durationDays: z.coerce.number().min(1, 'Duration must be at least 1 day'),
   start_date: z.string(),
   paid_amount: z.coerce.number().min(0, 'Paid amount cannot be negative'),
   payment_method: z.string(),
@@ -493,8 +493,9 @@ export function AddCustomerPage() {
                       <Label>Total Amount</Label>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-muted-foreground">₹</span>
-                        <Input type="number" {...register('amount')} className="pl-7 bg-background border-border text-lg font-bold" />
+                        <Input type="number" {...register('amount')} className={`pl-7 bg-background border-border text-lg font-bold ${errors.amount ? 'border-destructive' : ''}`} />
                       </div>
+                      {errors.amount && <p className="text-xs text-destructive">{errors.amount.message}</p>}
                     </div>
                     <div className="space-y-2">
                       <Label>Paid Amount</Label>

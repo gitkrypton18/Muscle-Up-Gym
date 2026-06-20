@@ -25,7 +25,7 @@ export function useStats() {
 
       const [
         { count: totalMembers },
-        { count: activeMembers },
+        {},
         { data: rawExpiringData },
         { data: healthyData },
         { data: expiredMemberships },
@@ -139,6 +139,7 @@ export function useStats() {
   }, [])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchStats()
   }, [fetchStats])
 

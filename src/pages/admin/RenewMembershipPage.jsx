@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { RefreshCw, Loader2, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
@@ -16,7 +16,7 @@ export function RenewMembershipPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { fetchCustomerById, addCustomer, updateCustomer } = useCustomers()
-  const { addMembership, updateMembershipStatus } = useMemberships()
+  const { addMembership } = useMemberships()
   const { addPayment } = usePayments()
   
   const [loading, setLoading] = useState(true)
@@ -87,6 +87,14 @@ export function RenewMembershipPage() {
   }
 
   const handleSubmit = () => {
+    if (formData.amount === undefined || formData.amount === '' || Number(formData.amount) < 0) {
+      toast.error('Total Amount cannot be negative')
+      return
+    }
+    if (formData.durationDays === undefined || formData.durationDays === '' || Number(formData.durationDays) < 1) {
+      toast.error('Duration must be at least 1 day')
+      return
+    }
     if (formData.paid_amount === undefined || formData.paid_amount === '' || Number(formData.paid_amount) < 0) {
       toast.error('Valid Paid Amount is required')
       return

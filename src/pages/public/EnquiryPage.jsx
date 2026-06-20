@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { MapPin, Phone, Mail, Clock, Loader2, Send } from 'lucide-react'
+import { MapPin, Phone, Clock, Loader2, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -15,21 +15,15 @@ export function EnquiryPage() {
   const location = useLocation()
   const { gymDetails } = useGymSettings()
   
+  const params = new URLSearchParams(location.search)
+  const plan = params.get('plan')
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    message: ''
+    message: plan ? `I am interested in the ${plan} plan.` : ''
   })
   const [submitting, setSubmitting] = useState(false)
-
-  // Pre-fill message if a plan was selected
-  useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    const plan = params.get('plan')
-    if (plan) {
-      setFormData(prev => ({ ...prev, message: `I am interested in the ${plan} plan.` }))
-    }
-  }, [location])
 
   const handleSubmit = async (e) => {
     e.preventDefault()

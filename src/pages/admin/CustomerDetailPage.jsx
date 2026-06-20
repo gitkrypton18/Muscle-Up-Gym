@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { Edit, History, Calendar, CreditCard, Activity, Trash2, ArrowLeft, Users, Unlink, Target, Mail, HeartPulse, Clock, Droplets, AlertTriangle } from 'lucide-react'
+import { Edit, History, Calendar, CreditCard, Activity, Trash2, ArrowLeft, Unlink, Target, Mail, Clock, Droplets, AlertTriangle } from 'lucide-react'
 import { useCustomers } from '@/hooks/useCustomers'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -34,7 +34,9 @@ export function CustomerDetailPage() {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     reloadData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, fetchCustomerById])
 
   if (loading) return <LoadingSpinner />
@@ -55,9 +57,18 @@ export function CustomerDetailPage() {
   const daysLeft = currentMembership ? calculateDaysRemaining(currentMembership.end_date) : 0
 
   const handleDeleteCustomer = async () => {
+    if (totalDueAmount > 0) {
+      toast.error(`Cannot delete ${customer.name}: Outstanding dues of ₹${totalDueAmount} must be paid first.`)
+      return
+    }
     if (window.confirm(`Are you sure you want to delete ${customer.name}? This action cannot be undone.`)) {
-      await deleteCustomer(id)
-      navigate('/admin/customers')
+      const { error } = await deleteCustomer(id)
+      if (error) {
+        toast.error(error.message || `Failed to delete ${customer.name}`)
+      } else {
+        toast.success(`${customer.name} deleted successfully`)
+        navigate('/admin/customers')
+      }
     }
   }
 
@@ -69,7 +80,7 @@ export function CustomerDetailPage() {
         await updateCustomer(partner.id, { partner_id: null })
         toast.success('Couple unlinked successfully')
         reloadData()
-      } catch (e) {
+      } catch {
         toast.error('Failed to unlink couple')
       }
     }

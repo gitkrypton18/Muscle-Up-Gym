@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,10 +14,6 @@ export function TestimonialsManager() {
   const [submitting, setSubmitting] = useState(false)
   const [formData, setFormData] = useState({ name: '', ig_handle: '', rating: 5, review: '' })
   const [showAdd, setShowAdd] = useState(false)
-
-  useEffect(() => {
-    fetchApproved()
-  }, [])
 
   const fetchApproved = async () => {
     setLoading(true)
@@ -37,6 +33,11 @@ export function TestimonialsManager() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchApproved()
+  }, [])
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this testimonial?')) return
