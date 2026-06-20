@@ -9,15 +9,15 @@ import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 
 const fallbackImages = [
-  '/assets/images/SaveClip.App_623842267_18073333688117521_5819781928970786734_n.jpg',
-  '/assets/images/SaveClip.App_626803963_18183544633366717_4837534250355868249_n.jpg',
-  '/assets/images/SaveClip.App_649222532_17903139405384455_4106029166490521891_n.jpg',
-  '/assets/images/SaveClip.App_653858963_17964573957022537_2839338754343810393_n.jpg',
+  { url: '/assets/images/SaveClip.App_623842267_18073333688117521_5819781928970786734_n.jpg', uploader_name: 'Official', media_type: 'image' },
+  { url: '/assets/images/SaveClip.App_626803963_18183544633366717_4837534250355868249_n.jpg', uploader_name: 'Official', media_type: 'image' },
+  { url: '/assets/images/SaveClip.App_649222532_17903139405384455_4106029166490521891_n.jpg', uploader_name: 'Official', media_type: 'image' },
+  { url: '/assets/images/SaveClip.App_653858963_17964573957022537_2839338754343810393_n.jpg', uploader_name: 'Official', media_type: 'image' },
 ]
 const fallbackVideos = [
-  '/assets/videos/trip/SaveClip.App_AQMlUc-tjTvLlNj8e1ffKFz2KJoydrwR6Hv3ATnN8vy5pdWujhXnJBebcUVUI86faYu7A4nXKx740l0eLGTdv0TxI4zQluhdQxPrODg.mp4',
-  '/assets/videos/trip/SaveClip.App_AQMzkL1_-QVKPC3KbqT7NwzZ3keHwGa-ORsX66eWYW2T3BPbITE4H1zSz4E2vtx7XM7vxrYZHAczLH27HBPcIMeousRDn-ffxWwFq7I.mp4',
-  '/assets/videos/gym/SaveClip.App_AQPOZ667nwSQW6Nay30PugR7clxmguitE6vUXc3zE4i5JZ7vgyt96C_4f9gmLIZ-mSQC1DDEdl_WJ8KDssF0uj-EYw1vBq-dUdU_5Mo.mp4',
+  { url: '/assets/videos/trip/SaveClip.App_AQMlUc-tjTvLlNj8e1ffKFz2KJoydrwR6Hv3ATnN8vy5pdWujhXnJBebcUVUI86faYu7A4nXKx740l0eLGTdv0TxI4zQluhdQxPrODg.mp4', uploader_name: 'Official', media_type: 'video' },
+  { url: '/assets/videos/trip/SaveClip.App_AQMzkL1_-QVKPC3KbqT7NwzZ3keHwGa-ORsX66eWYW2T3BPbITE4H1zSz4E2vtx7XM7vxrYZHAczLH27HBPcIMeousRDn-ffxWwFq7I.mp4', uploader_name: 'Official', media_type: 'video' },
+  { url: '/assets/videos/gym/SaveClip.App_AQPOZ667nwSQW6Nay30PugR7clxmguitE6vUXc3zE4i5JZ7vgyt96C_4f9gmLIZ-mSQC1DDEdl_WJ8KDssF0uj-EYw1vBq-dUdU_5Mo.mp4', uploader_name: 'Official', media_type: 'video' },
 ]
 
 const features = [
@@ -45,8 +45,8 @@ const features = [
 
 export function HomePage() {
   const [firstVideoEnded, setFirstVideoEnded] = useState(false)
-  const [images, setImages] = useState(fallbackImages)
-  const [videos, setVideos] = useState(fallbackVideos)
+  const [dbMedia, setDbMedia] = useState([])
+  const [activeFilter, setActiveFilter] = useState('all') // 'all' | 'official' | 'community'
 
   // Upload Modal State
   const [showModal, setShowModal] = useState(false)
@@ -74,14 +74,7 @@ export function HomePage() {
         }
         
         if (!active) return
-
-        if (data && data.length > 0) {
-          const dynamicImages = data.filter(m => m.media_type === 'image').map(m => m.url)
-          const dynamicVideos = data.filter(m => m.media_type === 'video').map(m => m.url)
-          
-          if (dynamicImages.length > 0) setImages([...dynamicImages, ...fallbackImages])
-          if (dynamicVideos.length > 0) setVideos([...dynamicVideos, ...fallbackVideos])
-        }
+        if (data) setDbMedia(data)
       } catch (err) {
         console.error(err)
       }
@@ -91,6 +84,20 @@ export function HomePage() {
       active = false
     }
   }, [])
+
+  const allMedia = [...dbMedia, ...fallbackImages, ...fallbackVideos]
+
+  const filteredMedia = allMedia.filter(item => {
+    if (activeFilter === 'official') {
+      return item.uploader_name === 'Official'
+    } else if (activeFilter === 'community') {
+      return item.uploader_name !== 'Official'
+    }
+    return true
+  })
+
+  const filteredImages = filteredMedia.filter(item => item.media_type === 'image')
+  const filteredVideos = filteredMedia.filter(item => item.media_type === 'video')
 
   const handleUploadSubmit = async (e) => {
     e.preventDefault()
@@ -300,6 +307,40 @@ export function HomePage() {
             </motion.div>
           </div>
 
+          {/* Filter Tabs */}
+          <div className="flex justify-center md:justify-start gap-4 mb-12 border-b border-border/40 pb-4">
+            <button
+              onClick={() => setActiveFilter('all')}
+              className={`pb-2 px-4 text-lg font-bold border-b-2 transition-all ${
+                activeFilter === 'all'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              All Vibes
+            </button>
+            <button
+              onClick={() => setActiveFilter('official')}
+              className={`pb-2 px-4 text-lg font-bold border-b-2 transition-all ${
+                activeFilter === 'official'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Official Gallery
+            </button>
+            <button
+              onClick={() => setActiveFilter('community')}
+              className={`pb-2 px-4 text-lg font-bold border-b-2 transition-all ${
+                activeFilter === 'community'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Member Uploads
+            </button>
+          </div>
+
           {/* Photos Carousel */}
           <div className="mb-16 relative group/carousel">
             <div className="flex justify-between items-center mb-6">
@@ -318,7 +359,7 @@ export function HomePage() {
               ref={photosRef}
               className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 select-none scrollbar-hide"
             >
-              {images.map((src, index) => (
+              {filteredImages.map((item, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -328,12 +369,17 @@ export function HomePage() {
                   className="flex-shrink-0 w-80 h-80 rounded-2xl overflow-hidden aspect-square bg-muted snap-start relative group cursor-pointer"
                 >
                   <img 
-                    src={src} 
+                    src={item.url} 
                     alt={`Gym ${index}`} 
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                    <span className="text-white font-bold text-sm shadow-black drop-shadow-md">Muscle Up Fam</span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex justify-between items-end p-4">
+                    <span className="text-white font-bold text-sm shadow-black drop-shadow-md">
+                      {item.uploader_name === 'Official' ? 'Muscle Up Gym' : item.uploader_name}
+                    </span>
+                    {item.uploader_name === 'Official' && (
+                      <span className="text-[10px] bg-primary text-black font-extrabold px-2 py-0.5 rounded-full">Official</span>
+                    )}
                   </div>
                 </motion.div>
               ))}
@@ -358,7 +404,7 @@ export function HomePage() {
               ref={reelsRef}
               className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 select-none scrollbar-hide"
             >
-              {videos.map((src, index) => (
+              {filteredVideos.map((item, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 30, scale: 0.9 }}
@@ -376,7 +422,7 @@ export function HomePage() {
                       playsInline
                       className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
                     >
-                      <source src={src} type="video/mp4" />
+                      <source src={item.url} type="video/mp4" />
                     </video>
                   </div>
                   
@@ -387,10 +433,15 @@ export function HomePage() {
                       <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center border-2 border-white">
                         <Play className="w-3 h-3 text-white fill-white" />
                       </div>
-                      <span className="font-bold text-white shadow-black drop-shadow-md">@muscleup.1</span>
+                      <span className="font-bold text-white shadow-black drop-shadow-md">
+                        @{item.ig_handle || 'muscleup.1'}
+                      </span>
+                      {item.uploader_name === 'Official' && (
+                        <span className="text-[10px] bg-primary text-black font-extrabold px-2 py-0.5 rounded-full ml-auto">Official</span>
+                      )}
                     </div>
                     <p className="text-sm text-white/90 font-medium line-clamp-2 drop-shadow-md">
-                      Community submission. Hardcore vibes! 🔥
+                      {item.uploader_name === 'Official' ? 'Official gym reels. Elite workout vibes! 🔥' : `Community reel uploaded by ${item.uploader_name}`}
                     </p>
                   </div>
                 </motion.div>
