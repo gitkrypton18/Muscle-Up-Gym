@@ -23,7 +23,6 @@ import { TestimonialsManager } from '@/pages/admin/TestimonialsManager'
 // Public Pages
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { HomePage } from '@/pages/public/HomePage'
-import { GalleryPage } from '@/pages/public/GalleryPage'
 import { PlansPage } from '@/pages/public/PlansPage'
 import { EnquiryPage } from '@/pages/public/EnquiryPage'
 import { AboutPage } from '@/pages/public/AboutPage'
@@ -53,7 +52,6 @@ function App() {
             <Route path="/" element={<PublicLayout />}>
               <Route index element={<HomePage />} />
               <Route path="about" element={<AboutPage />} />
-              <Route path="gallery" element={<GalleryPage />} />
               <Route path="testimonials" element={<TestimonialsPage />} />
               <Route path="plans" element={<PlansPage />} />
               <Route path="enquiry" element={<EnquiryPage />} />

@@ -23,7 +23,6 @@ export function PublicLayout() {
     { name: 'Home', path: '/' },
     { name: 'About', path: '/about' },
     { name: 'Plans', path: '/plans' },
-    { name: 'Gallery', path: '/gallery' },
     { name: 'Reviews', path: '/testimonials' },
     { name: 'Enquiry', path: '/enquiry' },
   ]
