@@ -369,44 +369,34 @@ export function HomePage() {
           <div className="mb-16 relative group/carousel">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold border-l-4 border-primary pl-4">Community Photos</h3>
-              <div className="flex gap-2">
-                <Button variant="outline" size="icon" onClick={() => scroll(photosRef, 'left')} className="rounded-full border-primary/20 hover:bg-primary/10">
-                  <ChevronLeft className="w-5 h-5" />
-                </Button>
-                <Button variant="outline" size="icon" onClick={() => scroll(photosRef, 'right')} className="rounded-full border-primary/20 hover:bg-primary/10">
-                  <ChevronRight className="w-5 h-5" />
-                </Button>
-              </div>
             </div>
             
             <div 
-              ref={photosRef}
-              className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 select-none scrollbar-hide"
+              className="flex overflow-hidden pb-12 pt-8 -mt-8 -mx-4 px-4 [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]"
+              style={{ perspective: "1200px" }}
             >
-              {filteredImages.map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: (index % 4) * 0.05 }}
-                  className="flex-shrink-0 w-80 h-80 rounded-2xl overflow-hidden aspect-square bg-muted snap-start relative group cursor-pointer"
-                >
-                  <img 
-                    src={item.url} 
-                    alt={`Gym ${index}`} 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex justify-between items-end p-4">
-                    <span className="text-white font-bold text-sm shadow-black drop-shadow-md">
-                      {item.uploader_name === 'Official' ? 'Muscle Up Gym' : item.uploader_name}
-                    </span>
-                    {item.uploader_name === 'Official' && (
-                      <span className="text-[10px] bg-primary text-black font-extrabold px-2 py-0.5 rounded-full">Official</span>
-                    )}
+              <div className="flex gap-6 animate-infinite-scroll">
+                {[...filteredImages, ...filteredImages].map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex-shrink-0 w-80 h-80 rounded-2xl overflow-hidden aspect-square bg-muted relative group cursor-pointer reel-item border border-border/50"
+                  >
+                    <img 
+                      src={item.url} 
+                      alt={`Gym ${index}`} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/20 opacity-0 group-hover:opacity-100 transition-all duration-500 flex justify-between items-end p-4 border-[3px] border-primary/0 group-hover:border-primary/80 rounded-2xl z-10">
+                      <span className="text-white font-bold text-sm shadow-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                        {item.uploader_name === 'Official' ? 'Muscle Up Gym' : item.uploader_name}
+                      </span>
+                      {item.uploader_name === 'Official' && (
+                        <span className="text-[10px] bg-primary text-black font-extrabold px-2 py-0.5 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75 shadow-lg">Official</span>
+                      )}
+                    </div>
                   </div>
-                </motion.div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 

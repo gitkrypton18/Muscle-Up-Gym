@@ -134,3 +134,26 @@
   display: inline-block;
   vertical-align: bottom;
 }
+
+/* Infinite 3D Reel Animation */
+@keyframes infinite-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-50% - 12px)); } /* -12px accounts for half of the gap-6 (24px) */
+}
+.animate-infinite-scroll {
+  animation: infinite-scroll 35s linear infinite;
+  width: max-content;
+}
+.animate-infinite-scroll:hover {
+  animation-play-state: paused;
+}
+.reel-item {
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.5s ease;
+  will-change: transform;
+}
+.reel-item:hover {
+  transform: translateZ(60px) scale(1.1) rotateZ(2deg) rotateX(5deg);
+  box-shadow: 0 25px 50px -12px rgba(234, 88, 12, 0.6);
+  z-index: 50;
+}
