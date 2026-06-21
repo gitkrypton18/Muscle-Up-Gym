@@ -21,7 +21,11 @@ export function formatDate(dateString) {
 
 export function calculateDaysRemaining(endDate) {
   if (!endDate) return 0
-  return differenceInDays(new Date(endDate), new Date())
+  const end = new Date(endDate)
+  end.setHours(0, 0, 0, 0)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return differenceInDays(end, today)
 }
 
 export function getInitials(name) {

@@ -24,9 +24,9 @@ CREATE POLICY "Allow public insert to testimonials" ON public.testimonials
 -- Admin bypass (assuming admin uses anon key for now or a specific admin policy)
 -- Note: In a production app, you'd restrict update/delete to authenticated admins only. 
 -- For simplicity in this build, we allow anon update/delete since the dashboard is protected by custom logic.
-CREATE POLICY "Allow anon update" ON public.testimonials FOR UPDATE USING (true);
-CREATE POLICY "Allow anon delete" ON public.testimonials FOR DELETE USING (true);
-CREATE POLICY "Allow anon select all" ON public.testimonials FOR SELECT USING (true);
+CREATE POLICY "Allow auth update" ON public.testimonials FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Allow auth delete" ON public.testimonials FOR DELETE USING (auth.role() = 'authenticated');
+CREATE POLICY "Allow auth select all" ON public.testimonials FOR SELECT USING (auth.role() = 'authenticated');
 
 -- 2. Create the Community Media table (for Gallery uploads)
 CREATE TABLE IF NOT EXISTS public.community_media (
@@ -47,9 +47,9 @@ CREATE POLICY "Allow public read for approved media" ON public.community_media
 CREATE POLICY "Allow public insert to media" ON public.community_media
     FOR INSERT WITH CHECK (status = 'pending');
 
-CREATE POLICY "Allow anon update media" ON public.community_media FOR UPDATE USING (true);
-CREATE POLICY "Allow anon delete media" ON public.community_media FOR DELETE USING (true);
-CREATE POLICY "Allow anon select all media" ON public.community_media FOR SELECT USING (true);
+CREATE POLICY "Allow auth update media" ON public.community_media FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Allow auth delete media" ON public.community_media FOR DELETE USING (auth.role() = 'authenticated');
+CREATE POLICY "Allow auth select all media" ON public.community_media FOR SELECT USING (auth.role() = 'authenticated');
 
 -- 3. Create the Leads table
 CREATE TABLE IF NOT EXISTS public.leads (
@@ -68,9 +68,9 @@ CREATE POLICY "Allow public insert to leads" ON public.leads
     FOR INSERT WITH CHECK (true);
 
 -- Allow select/update/delete for the app (matches the testimonial bypass policies)
-CREATE POLICY "Allow anon select leads" ON public.leads FOR SELECT USING (true);
-CREATE POLICY "Allow anon update leads" ON public.leads FOR UPDATE USING (true);
-CREATE POLICY "Allow anon delete leads" ON public.leads FOR DELETE USING (true);
+CREATE POLICY "Allow auth select leads" ON public.leads FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "Allow auth update leads" ON public.leads FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Allow auth delete leads" ON public.leads FOR DELETE USING (auth.role() = 'authenticated');
 
 -- ==========================================
 -- STORAGE BUCKET INSTRUCTIONS
@@ -88,3 +88,5 @@ CREATE POLICY "Allow public select" ON storage.objects
     FOR SELECT USING (bucket_id = 'community_media');
 CREATE POLICY "Allow public delete" ON storage.objects
     FOR DELETE USING (bucket_id = 'community_media');
+
+

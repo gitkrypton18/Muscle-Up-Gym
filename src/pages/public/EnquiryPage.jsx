@@ -31,6 +31,10 @@ export function EnquiryPage() {
       toast.error('Name and Phone are required')
       return
     }
+    if (!/^\d{10}$/.test(formData.phone)) {
+      toast.error('Please enter a valid 10-digit phone number')
+      return
+    }
 
     setSubmitting(true)
     // Assuming addLead just inserts it into the DB and returns { error }

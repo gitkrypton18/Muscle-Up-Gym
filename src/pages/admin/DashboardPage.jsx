@@ -120,8 +120,8 @@ export function DashboardPage() {
             <div className="space-y-2">
               {stats.attentionMembers.map((member, idx) => {
                 const daysLeft = calculateDaysRemaining(member.end_date)
-                const isExpired = member._attentionType === 'expired'
-                const isUnpaid = member._attentionType === 'unpaid'
+                const isExpired = member._attentionTypes?.has('expired')
+                const isUnpaid = member._attentionTypes?.has('unpaid')
 
                 const waMessage = generateWhatsAppMessage({
                   name: member.name,

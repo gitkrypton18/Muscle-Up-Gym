@@ -63,6 +63,16 @@ export function TestimonialsPage() {
     try {
       // 1. Upload photo if exists
       if (photoFile) {
+        if (!photoFile.type.startsWith('image/')) {
+          toast.error('Only image files are allowed for testimonials.')
+          setSubmitting(false)
+          return
+        }
+        if (photoFile.size > 5 * 1024 * 1024) {
+          toast.error('Image size must be less than 5MB.')
+          setSubmitting(false)
+          return
+        }
         const fileExt = photoFile.name.split('.').pop()
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
         const filePath = `testimonials/${fileName}`
@@ -92,7 +102,7 @@ export function TestimonialsPage() {
           rating: formData.rating,
           review: formData.review,
           photo_url: photo_url,
-          status: 'approved' 
+          status: 'pending' 
         }])
 
       if (insertError) throw insertError
@@ -288,7 +298,7 @@ export function TestimonialsPage() {
               {submitting ? 'Submitting...' : <><Send className="w-6 h-6 mr-3" /> Submit Review</>}
             </Button>
             <p className="text-center text-sm text-muted-foreground mt-2">
-              Note: Your review will be publicly visible immediately.
+              Note: Your review will be visible after approval.
             </p>
           </form>
         </motion.div>

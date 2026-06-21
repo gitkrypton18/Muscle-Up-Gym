@@ -25,6 +25,17 @@ export function ApprovalsPage() {
 
     setUploading(true)
     try {
+      if (!mediaFile.type.startsWith('image/') && !mediaFile.type.startsWith('video/')) {
+        toast.error('Only image and video files are allowed.')
+        setUploading(false)
+        return
+      }
+      if (mediaFile.size > 50 * 1024 * 1024) {
+        toast.error('File size must be less than 50MB.')
+        setUploading(false)
+        return
+      }
+      
       const isVideo = mediaFile.type.startsWith('video/')
       const media_type = isVideo ? 'video' : 'image'
       

@@ -10,6 +10,7 @@ import { ExpiryBadge } from '@/components/shared/ExpiryBadge'
 import { ActionButtons } from '@/components/shared/ActionButtons'
 import { calculateDaysRemaining, getInitials, generateWhatsAppMessage } from '@/lib/utils'
 import { toast } from 'sonner'
+import { supabase } from '@/lib/supabase'
 
 export function CustomersPage() {
   const { customers, loading, fetchCustomers, deleteCustomer } = useCustomers()
@@ -118,7 +119,9 @@ export function CustomersPage() {
       }
       const res2 = await deleteCustomer(p2.id)
       if (res2.error) {
-        toast.error(res2.error.message || `Failed to delete ${p2.name}`)
+        // Rollback first deletion
+        await supabase.from('customers').update({ is_deleted: false }).eq('id', p1.id)
+        toast.error(res2.error.message || `Failed to delete ${p2.name}. Rolled back changes.`)
         return
       }
       toast.success(`Deleted couple ${p1.name} and ${p2.name} successfully`)

@@ -25,7 +25,7 @@ export function useStats() {
 
       const [
         { count: totalMembers },
-        {},
+        , // skip the second element
         { data: rawExpiringData },
         { data: healthyData },
         { data: expiredMemberships },
@@ -90,7 +90,7 @@ export function useStats() {
 
       // Add expiring
       ;(expiringData || []).forEach(m => {
-        attentionMap.set(m.id, { ...m, _attentionType: 'expiring' })
+        attentionMap.set(m.id, { ...m, _attentionTypes: new Set(['expiring']) })
       })
 
       // Add expired
@@ -103,16 +103,17 @@ export function useStats() {
           plan_name: m.plan_name,
           end_date: m.end_date,
           start_date: m.start_date,
-          _attentionType: 'expired'
+          _attentionTypes: new Set(['expired'])
         })
       })
 
       // Add unpaid
       ;(unpaidData || []).forEach(m => {
         const existing = attentionMap.get(m.id)
+        const types = existing ? new Set([...existing._attentionTypes, 'unpaid']) : new Set(['unpaid'])
         attentionMap.set(m.id, { 
           ...(existing || m), 
-          _attentionType: 'unpaid',
+          _attentionTypes: types,
           due_amount: (existing?.due_amount || 0) + Number(m.due_amount)
         })
       })
