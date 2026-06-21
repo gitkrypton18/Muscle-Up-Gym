@@ -23,8 +23,6 @@ const fallbackImages = [
 ]
 
 const fallbackGymVideos = [
-  { url: '/assets/videos/gym/20250527_211701.mp4', uploader_name: 'Official', media_type: 'video', category: 'gym', ig_handle: 'muscleup.1' },
-  { url: '/assets/videos/gym/20250527_211433.mp4', uploader_name: 'Official', media_type: 'video', category: 'gym', ig_handle: 'muscleup.1' },
   { url: '/assets/videos/SaveClip.App_AQNdYo57NUhmrV5c06Bi4nHrZLMAEhhl30fjPQpcZHFURXXATkP8qrIfYQMO8mmu9BlpR06jpcBiUT7W_EN8gdhfX4JUdluk3ptKCEY.mp4', uploader_name: 'Official', media_type: 'video', category: 'gym', ig_handle: 'muscleup.1' },
   { url: '/assets/videos/SaveClip.App_AQPOZ667nwSQW6Nay30PugR7clxmguitE6vUXc3zE4i5JZ7vgyt96C_4f9gmLIZ-mSQC1DDEdl_WJ8KDssF0uj-EYw1vBq-dUdU_5Mo.mp4', uploader_name: 'Official', media_type: 'video', category: 'gym', ig_handle: 'muscleup.1' }
 ]
