@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import { calculateDaysRemaining } from '@/lib/utils'
 
 export function useStats() {
   const [stats, setStats] = useState({
@@ -25,27 +26,21 @@ export function useStats() {
 
       const [
         { count: totalMembers },
-        , // skip the second element
-        { data: rawExpiringData },
-        { data: healthyData },
+        { count: activeCount },
+        { data: activeMembershipsData },
         { data: expiredMemberships },
-        { data: activeMembershipCustomerIds },
         { data: unpaidRawData },
         { count: newThisMonth },
         { data: paymentsThisMonth }
       ] = await Promise.all([
         // Total Members
         supabase.from('customers').select('*', { count: 'exact', head: true }).eq('is_deleted', false),
-        // Active Members
+        // Active Members Count
         supabase.from('memberships').select('*, customers!inner(is_deleted)', { count: 'exact', head: true }).eq('status', 'active').gte('end_date', todayStr).eq('customers.is_deleted', false),
-        // Expiring Memberships
-        supabase.from('active_members').select('*', { count: 'exact' }).eq('expiry_status', 'expiring'),
-        // Healthy Memberships
-        supabase.from('active_members').select('id').eq('expiry_status', 'healthy'),
+        // Active Memberships Full Data (to calculate expiring)
+        supabase.from('memberships').select('*, customers!inner(id, name, phone, whatsapp, is_deleted)').eq('status', 'active').gte('end_date', todayStr).eq('customers.is_deleted', false),
         // Expired Memberships
         supabase.from('memberships').select('*, customers!inner(id, name, phone, whatsapp, is_deleted)').eq('status', 'expired').eq('customers.is_deleted', false),
-        // Active Customer IDs
-        supabase.from('memberships').select('customer_id, customers!inner(is_deleted)').eq('status', 'active').gte('end_date', todayStr).eq('customers.is_deleted', false),
         // Unpaid Members
         supabase.from('payments').select(`due_amount, memberships!inner (id, plan_name, start_date, end_date, customers!inner (id, name, phone, whatsapp, is_deleted))`).gt('due_amount', 0).eq('memberships.customers.is_deleted', false),
         // New this month
@@ -54,12 +49,27 @@ export function useStats() {
         supabase.from('payments').select('paid_amount').gte('payment_date', startOfMonth.toISOString())
       ])
 
-      const healthyIds = new Set((healthyData || []).map(m => m.id))
-      const expiringData = (rawExpiringData || []).filter(m => !healthyIds.has(m.id))
+      // 1. Process Active Memberships to find Expiring
+      const expiringData = []
+      const activeCustomerIds = new Set()
 
-      const activeCustomerIds = new Set((activeMembershipCustomerIds || []).map(m => m.customer_id))
+      ;(activeMembershipsData || []).forEach(m => {
+        activeCustomerIds.add(m.customer_id)
+        const daysLeft = calculateDaysRemaining(m.end_date)
+        if (daysLeft >= 0 && daysLeft <= 5) {
+          expiringData.push({
+            id: m.customers.id,
+            name: m.customers.name,
+            phone: m.customers.phone,
+            whatsapp: m.customers.whatsapp,
+            plan_name: m.plan_name,
+            end_date: m.end_date,
+            start_date: m.start_date
+          })
+        }
+      })
 
-      // Expired members who have NOT renewed
+      // 2. Process Expired members who have NOT renewed
       const trueExpiredMembers = (expiredMemberships || []).filter(
         m => !activeCustomerIds.has(m.customer_id)
       )
@@ -74,6 +84,7 @@ export function useStats() {
       })
       const uniqueExpiredMembers = Array.from(expiredByCustomer.values())
 
+      // 3. Process Unpaid Members
       const unpaidData = (unpaidRawData || []).map(p => ({
         id: p.memberships.customers.id,
         name: p.memberships.customers.name,
@@ -89,7 +100,7 @@ export function useStats() {
       const attentionMap = new Map()
 
       // Add expiring
-      ;(expiringData || []).forEach(m => {
+      expiringData.forEach(m => {
         attentionMap.set(m.id, { ...m, _attentionTypes: new Set(['expiring']) })
       })
 
@@ -108,7 +119,7 @@ export function useStats() {
       })
 
       // Add unpaid
-      ;(unpaidData || []).forEach(m => {
+      unpaidData.forEach(m => {
         const existing = attentionMap.get(m.id)
         const types = existing ? new Set([...existing._attentionTypes, 'unpaid']) : new Set(['unpaid'])
         attentionMap.set(m.id, { 
