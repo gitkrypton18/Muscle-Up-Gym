@@ -57,7 +57,7 @@ const features = [
 ]
 
 export function HomePage() {
-  const [firstVideoEnded, setFirstVideoEnded] = useState(false)
+
   const [dbMedia, setDbMedia] = useState([])
   const [activeFilter, setActiveFilter] = useState('all') // 'all' | 'official' | 'community'
 
@@ -190,32 +190,29 @@ export function HomePage() {
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Video Background Sequence */}
-        <div className="absolute inset-0 z-0 bg-black">
-          {/* First Video */}
-          <video
-            autoPlay
-            muted
-            playsInline
-            onEnded={() => setFirstVideoEnded(true)}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${firstVideoEnded ? 'opacity-0' : 'opacity-100'}`}
-          >
-            <source src="/assets/videos/gym/SaveClip.App_AQPOZ667nwSQW6Nay30PugR7clxmguitE6vUXc3zE4i5JZ7vgyt96C_4f9gmLIZ-mSQC1DDEdl_WJ8KDssF0uj-EYw1vBq-dUdU_5Mo.mp4" type="video/mp4" />
-          </video>
-
-          {/* Second Video (Loops) */}
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ${firstVideoEnded ? 'opacity-80 blur-sm' : 'opacity-0'}`}
-          >
-            <source src="/assets/videos/gym/hero-bg.mp4" type="video/mp4" />
-          </video>
+        {/* Video Background Grid */}
+        <div className="absolute inset-0 z-0 bg-background overflow-hidden">
+          <div className="absolute inset-0 grid grid-cols-4 gap-4 p-4 md:p-6 opacity-90">
+            <div className="col-span-1 h-full w-full rounded-[2rem] overflow-hidden border border-white/10 relative opacity-80 blur-[4px] hover:blur-none hover:opacity-100 transition-all duration-700">
+              <video autoPlay loop muted playsInline className="w-full h-full object-cover">
+                <source src="/assets/videos/gym/20250527_211701.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <div className="col-span-2 h-full w-full rounded-[2.5rem] overflow-hidden border border-white/10 relative shadow-2xl scale-[1.02] z-10">
+              <video autoPlay loop muted playsInline className="w-full h-full object-cover relative z-0">
+                <source src="/assets/videos/gym/SaveClip.App_AQPOZ667nwSQW6Nay30PugR7clxmguitE6vUXc3zE4i5JZ7vgyt96C_4f9gmLIZ-mSQC1DDEdl_WJ8KDssF0uj-EYw1vBq-dUdU_5Mo.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <div className="col-span-1 h-full w-full rounded-[2rem] overflow-hidden border border-white/10 relative opacity-80 blur-[4px] hover:blur-none hover:opacity-100 transition-all duration-700">
+              <video autoPlay loop muted playsInline className="w-full h-full object-cover">
+                <source src="/assets/videos/gym/20250527_211433.mp4" type="video/mp4" />
+              </video>
+            </div>
+          </div>
           
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-          <div className="absolute inset-0 bg-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background pointer-events-none opacity-60" />
+          <div className="absolute inset-0 bg-black/10 pointer-events-none" />
         </div>
 
         {/* Hero Content */}
@@ -224,7 +221,7 @@ export function HomePage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="max-w-3xl mx-auto space-y-6"
+            className="max-w-3xl mx-auto space-y-6 relative z-20"
           >
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
