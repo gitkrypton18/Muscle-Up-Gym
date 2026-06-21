@@ -15,15 +15,27 @@ const Instagram = ({ className }) => (
 )
 
 const fallbackImages = [
-  { url: '/assets/images/SaveClip.App_623842267_18073333688117521_5819781928970786734_n.jpg', uploader_name: 'Official', media_type: 'image' },
-  { url: '/assets/images/SaveClip.App_626803963_18183544633366717_4837534250355868249_n.jpg', uploader_name: 'Official', media_type: 'image' },
-  { url: '/assets/images/SaveClip.App_649222532_17903139405384455_4106029166490521891_n.jpg', uploader_name: 'Official', media_type: 'image' },
-  { url: '/assets/images/SaveClip.App_653858963_17964573957022537_2839338754343810393_n.jpg', uploader_name: 'Official', media_type: 'image' },
+  { url: '/assets/images/SaveClip.App_623842267_18073333688117521_5819781928970786734_n.jpg', uploader_name: 'Official', media_type: 'image', category: 'general', ig_handle: 'muscleup.1' },
+  { url: '/assets/images/SaveClip.App_626803963_18183544633366717_4837534250355868249_n.jpg', uploader_name: 'Official', media_type: 'image', category: 'general', ig_handle: 'muscleup.1' },
+  { url: '/assets/images/SaveClip.App_649222532_17903139405384455_4106029166490521891_n.jpg', uploader_name: 'Official', media_type: 'image', category: 'general', ig_handle: 'muscleup.1' },
+  { url: '/assets/images/SaveClip.App_653858963_17964573957022537_2839338754343810393_n.jpg', uploader_name: 'Official', media_type: 'image', category: 'general', ig_handle: 'muscleup.1' },
+  { url: '/assets/images/SaveClip.App_655198488_18116354113645365_5737051318748731806_n.jpg', uploader_name: 'Official', media_type: 'image', category: 'general', ig_handle: 'muscleup.1' },
+  { url: '/assets/images/SaveClip.App_655238798_18102237650304609_811661863512581477_n.jpg', uploader_name: 'Official', media_type: 'image', category: 'general', ig_handle: 'muscleup.1' },
+  { url: '/assets/images/SaveClip.App_655614549_18171361543398453_1062577139582213994_n.jpg', uploader_name: 'Official', media_type: 'image', category: 'general', ig_handle: 'muscleup.1' },
+  { url: '/assets/images/SaveClip.App_657372565_18087772088249323_321275352817532260_n.jpg', uploader_name: 'Official', media_type: 'image', category: 'general', ig_handle: 'muscleup.1' },
+  { url: '/assets/images/SaveClip.App_657386195_18068937389289410_3712540365567703324_n.jpg', uploader_name: 'Official', media_type: 'image', category: 'general', ig_handle: 'muscleup.1' },
+  { url: '/assets/images/SaveClip.App_662274601_18120769123720791_2941504078796601949_n.jpg', uploader_name: 'Official', media_type: 'image', category: 'general', ig_handle: 'muscleup.1' }
 ]
-const fallbackVideos = [
-  { url: '/assets/videos/trip/SaveClip.App_AQMlUc-tjTvLlNj8e1ffKFz2KJoydrwR6Hv3ATnN8vy5pdWujhXnJBebcUVUI86faYu7A4nXKx740l0eLGTdv0TxI4zQluhdQxPrODg.mp4', uploader_name: 'Official', media_type: 'video' },
-  { url: '/assets/videos/trip/SaveClip.App_AQMzkL1_-QVKPC3KbqT7NwzZ3keHwGa-ORsX66eWYW2T3BPbITE4H1zSz4E2vtx7XM7vxrYZHAczLH27HBPcIMeousRDn-ffxWwFq7I.mp4', uploader_name: 'Official', media_type: 'video' },
-  { url: '/assets/videos/gym/SaveClip.App_AQPOZ667nwSQW6Nay30PugR7clxmguitE6vUXc3zE4i5JZ7vgyt96C_4f9gmLIZ-mSQC1DDEdl_WJ8KDssF0uj-EYw1vBq-dUdU_5Mo.mp4', uploader_name: 'Official', media_type: 'video' },
+
+const fallbackGymVideos = [
+  { url: '/assets/videos/SaveClip.App_AQNdYo57NUhmrV5c06Bi4nHrZLMAEhhl30fjPQpcZHFURXXATkP8qrIfYQMO8mmu9BlpR06jpcBiUT7W_EN8gdhfX4JUdluk3ptKCEY.mp4', uploader_name: 'Official', media_type: 'video', category: 'gym', ig_handle: 'muscleup.1' },
+  { url: '/assets/videos/SaveClip.App_AQPOZ667nwSQW6Nay30PugR7clxmguitE6vUXc3zE4i5JZ7vgyt96C_4f9gmLIZ-mSQC1DDEdl_WJ8KDssF0uj-EYw1vBq-dUdU_5Mo.mp4', uploader_name: 'Official', media_type: 'video', category: 'gym', ig_handle: 'muscleup.1' }
+]
+
+const fallbackTripVideos = [
+  { url: '/assets/videos/SaveClip.App_AQMlUc-tjTvLlNj8e1ffKFz2KJoydrwR6Hv3ATnN8vy5pdWujhXnJBebcUVUI86faYu7A4nXKx740l0eLGTdv0TxI4zQluhdQxPrODg.mp4', uploader_name: 'Official', media_type: 'video', category: 'trip', ig_handle: 'muscleup.1' },
+  { url: '/assets/videos/SaveClip.App_AQMzkL1_-QVKPC3KbqT7NwzZ3keHwGa-ORsX66eWYW2T3BPbITE4H1zSz4E2vtx7XM7vxrYZHAczLH27HBPcIMeousRDn-ffxWwFq7I.mp4', uploader_name: 'Official', media_type: 'video', category: 'trip', ig_handle: 'muscleup.1' },
+  { url: '/assets/videos/SaveClip.App_AQNdFLxPIFdiMmHA6fAgwS07eVDnp_5Gi7bBpM6MWMf18UgMhXKYAXNZGb_RCS2lO9D8NiX8vv-T0ubzzDaolGBK8AIceEgaVmAJkUw.mp4', uploader_name: 'Official', media_type: 'video', category: 'trip', ig_handle: 'muscleup.1' }
 ]
 
 const features = [
@@ -57,14 +69,14 @@ export function HomePage() {
   // Upload Modal State
   const [showModal, setShowModal] = useState(false)
   const [formData, setFormData] = useState({ name: '', ig_handle: '' })
+  const [videoCategory, setVideoCategory] = useState('gym') // 'gym' | 'trip'
   const [mediaFile, setMediaFile] = useState(null)
   const [uploading, setUploading] = useState(false)
-  const [uploadType, setUploadType] = useState('file') // 'file' | 'instagram'
-  const [igUrl, setIgUrl] = useState('')
   const fileInputRef = useRef(null)
 
   const photosRef = useRef(null)
-  const reelsRef = useRef(null)
+  const gymVideosRef = useRef(null)
+  const tripVideosRef = useRef(null)
 
   useEffect(() => {
     let active = true
@@ -93,7 +105,7 @@ export function HomePage() {
     }
   }, [])
 
-  const allMedia = [...dbMedia, ...fallbackImages, ...fallbackVideos]
+  const allMedia = [...dbMedia, ...fallbackImages, ...fallbackGymVideos, ...fallbackTripVideos]
 
   const filteredMedia = allMedia.filter(item => {
     if (activeFilter === 'official') {
@@ -105,50 +117,13 @@ export function HomePage() {
   })
 
   const filteredImages = filteredMedia.filter(item => item.media_type === 'image')
-  const filteredVideos = filteredMedia.filter(item => item.media_type === 'video' || item.media_type === 'instagram')
+  const filteredGymVideos = filteredMedia.filter(item => item.media_type === 'video' && item.category === 'gym')
+  const filteredTripVideos = filteredMedia.filter(item => item.media_type === 'video' && item.category === 'trip')
 
   const handleUploadSubmit = async (e) => {
     e.preventDefault()
-    if (!formData.name) {
-      toast.error('Please provide your name.')
-      return
-    }
-
-    if (uploadType === 'instagram') {
-      if (!igUrl) {
-        toast.error('Please provide an Instagram link.')
-        return
-      }
-      setUploading(true)
-      try {
-        const { error: insertError } = await supabase
-          .from('community_media')
-          .insert([{
-            uploader_name: formData.name,
-            ig_handle: formData.ig_handle,
-            media_type: 'instagram',
-            url: igUrl,
-            status: 'pending'
-          }])
-
-        if (insertError) throw insertError
-
-        toast.success('Awesome! Your Instagram reel is pending admin approval.', { duration: 5000 })
-        setShowModal(false)
-        setFormData({ name: '', ig_handle: '' })
-        setIgUrl('')
-        setUploadType('file')
-      } catch (error) {
-        console.error(error)
-        toast.error('Failed to submit media.')
-      } finally {
-        setUploading(false)
-      }
-      return
-    }
-
-    if (!mediaFile) {
-      toast.error('Please select a file to upload.')
+    if (!formData.name || !mediaFile) {
+      toast.error('Please provide your name and a file to upload.')
       return
     }
 
@@ -156,6 +131,7 @@ export function HomePage() {
     try {
       const isVideo = mediaFile.type.startsWith('video/')
       const media_type = isVideo ? 'video' : 'image'
+      const category = isVideo ? videoCategory : 'general'
       
       const fileExt = mediaFile.name.split('.').pop()
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
@@ -185,6 +161,7 @@ export function HomePage() {
           ig_handle: formData.ig_handle,
           media_type,
           url: fileUrl,
+          category,
           status: 'pending'
         }])
 
@@ -433,25 +410,25 @@ export function HomePage() {
             </div>
           </div>
 
-          {/* Reels Carousel */}
-          <div className="relative group/carousel">
+          {/* Gym Videos Carousel */}
+          <div className="mb-16 relative group/carousel">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold border-l-4 border-primary pl-4">Muscle Up Reels</h3>
+              <h3 className="text-2xl font-bold border-l-4 border-primary pl-4">Muscle Up Gym Videos</h3>
               <div className="flex gap-2">
-                <Button variant="outline" size="icon" onClick={() => scroll(reelsRef, 'left')} className="rounded-full border-primary/20 hover:bg-primary/10">
+                <Button variant="outline" size="icon" onClick={() => scroll(gymVideosRef, 'left')} className="rounded-full border-primary/20 hover:bg-primary/10">
                   <ChevronLeft className="w-5 h-5" />
                 </Button>
-                <Button variant="outline" size="icon" onClick={() => scroll(reelsRef, 'right')} className="rounded-full border-primary/20 hover:bg-primary/10">
+                <Button variant="outline" size="icon" onClick={() => scroll(gymVideosRef, 'right')} className="rounded-full border-primary/20 hover:bg-primary/10">
                   <ChevronRight className="w-5 h-5" />
                 </Button>
               </div>
             </div>
 
             <div 
-              ref={reelsRef}
+              ref={gymVideosRef}
               className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 select-none scrollbar-hide"
             >
-              {filteredVideos.map((item, index) => (
+              {filteredGymVideos.map((item, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 30, scale: 0.9 }}
@@ -462,49 +439,98 @@ export function HomePage() {
                   className="flex-shrink-0 w-64 aspect-[9/16] bg-card rounded-[2rem] overflow-hidden border border-border/50 shadow-lg relative group cursor-pointer snap-start"
                 >
                   <div className="absolute inset-0 bg-black flex items-center justify-center">
-                    {item.media_type === 'instagram' ? (
-                      <iframe
-                        src={`${item.url.split('?')[0].replace(/\/$/, '')}/embed`}
-                        className="w-full h-full border-0"
-                        scrolling="no"
-                        allowTransparency="true"
-                        allow="encrypted-media"
-                      />
-                    ) : (
-                      <video 
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
-                      >
-                        <source src={item.url} type="video/mp4" />
-                      </video>
-                    )}
+                    <video 
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+                    >
+                      <source src={item.url} type="video/mp4" />
+                    </video>
                   </div>
                   
-                  {item.media_type !== 'instagram' && (
-                    <>
-                      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/80 pointer-events-none" />
-                      
-                      <div className="absolute bottom-6 left-4 right-4 pointer-events-none">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center border-2 border-white">
-                            <Play className="w-3 h-3 text-white fill-white" />
-                          </div>
-                          <span className="font-bold text-white shadow-black drop-shadow-md">
-                            @{item.ig_handle || 'muscleup.1'}
-                          </span>
-                          {item.uploader_name === 'Official' && (
-                            <span className="text-[10px] bg-primary text-black font-extrabold px-2 py-0.5 rounded-full ml-auto">Official</span>
-                          )}
-                        </div>
-                        <p className="text-sm text-white/90 font-medium line-clamp-2 drop-shadow-md">
-                          {item.uploader_name === 'Official' ? 'Official gym reels. Elite workout vibes! 🔥' : `Community reel uploaded by ${item.uploader_name}`}
-                        </p>
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/80 pointer-events-none" />
+                  
+                  <div className="absolute bottom-6 left-4 right-4 pointer-events-auto">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center border-2 border-white pointer-events-none">
+                        <Play className="w-3 h-3 text-white fill-white" />
                       </div>
-                    </>
-                  )}
+                      <a href={`https://instagram.com/${item.ig_handle || 'muscleup.1'}`} target="_blank" rel="noreferrer" className="font-bold text-white shadow-black drop-shadow-md hover:text-primary transition-colors cursor-pointer z-10 block">
+                        @{item.ig_handle || 'muscleup.1'}
+                      </a>
+                      {item.uploader_name === 'Official' && (
+                        <span className="text-[10px] bg-primary text-black font-extrabold px-2 py-0.5 rounded-full ml-auto pointer-events-none">Official</span>
+                      )}
+                    </div>
+                    <p className="text-sm text-white/90 font-medium line-clamp-2 drop-shadow-md pointer-events-none">
+                      {item.uploader_name === 'Official' ? 'Official gym reels. Elite workout vibes! 🔥' : `Community gym reel uploaded by ${item.uploader_name}`}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Trip Videos Carousel */}
+          <div className="relative group/carousel">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold border-l-4 border-primary pl-4">Trips & Activities</h3>
+              <div className="flex gap-2">
+                <Button variant="outline" size="icon" onClick={() => scroll(tripVideosRef, 'left')} className="rounded-full border-primary/20 hover:bg-primary/10">
+                  <ChevronLeft className="w-5 h-5" />
+                </Button>
+                <Button variant="outline" size="icon" onClick={() => scroll(tripVideosRef, 'right')} className="rounded-full border-primary/20 hover:bg-primary/10">
+                  <ChevronRight className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+
+            <div 
+              ref={tripVideosRef}
+              className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 select-none scrollbar-hide"
+            >
+              {filteredTripVideos.map((item, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.05, duration: 0.5, type: "spring" }}
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  className="flex-shrink-0 w-64 aspect-[9/16] bg-card rounded-[2rem] overflow-hidden border border-border/50 shadow-lg relative group cursor-pointer snap-start"
+                >
+                  <div className="absolute inset-0 bg-black flex items-center justify-center">
+                    <video 
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+                    >
+                      <source src={item.url} type="video/mp4" />
+                    </video>
+                  </div>
+                  
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/80 pointer-events-none" />
+                  
+                  <div className="absolute bottom-6 left-4 right-4 pointer-events-auto">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center border-2 border-white pointer-events-none">
+                        <Play className="w-3 h-3 text-white fill-white" />
+                      </div>
+                      <a href={`https://instagram.com/${item.ig_handle || 'muscleup.1'}`} target="_blank" rel="noreferrer" className="font-bold text-white shadow-black drop-shadow-md hover:text-primary transition-colors cursor-pointer z-10 block">
+                        @{item.ig_handle || 'muscleup.1'}
+                      </a>
+                      {item.uploader_name === 'Official' && (
+                        <span className="text-[10px] bg-primary text-black font-extrabold px-2 py-0.5 rounded-full ml-auto pointer-events-none">Official</span>
+                      )}
+                    </div>
+                    <p className="text-sm text-white/90 font-medium line-clamp-2 drop-shadow-md pointer-events-none">
+                      {item.uploader_name === 'Official' ? 'Official trip reels. The fam goes out! 🏕️' : `Trip reel uploaded by ${item.uploader_name}`}
+                    </p>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -534,12 +560,7 @@ export function HomePage() {
                 <p className="text-sm text-muted-foreground">Share your gym moments with the fam.</p>
               </div>
 
-              <form onSubmit={handleUploadSubmit} className="space-y-4">
-                <div className="flex gap-4 mb-4 border-b border-border">
-                  <button type="button" onClick={() => setUploadType('file')} className={`pb-2 text-sm font-bold border-b-2 transition-all ${uploadType === 'file' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>Upload File</button>
-                  <button type="button" onClick={() => setUploadType('instagram')} className={`pb-2 text-sm font-bold border-b-2 transition-all ${uploadType === 'instagram' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>Paste Instagram Link</button>
-                </div>
-                
+              <form onSubmit={handleUploadSubmit} className="space-y-4 mt-6">
                 <div className="space-y-1.5">
                   <Label>Your Name *</Label>
                   <Input required value={formData.name} onChange={e => setFormData(p => ({...p, name: e.target.value}))} className="bg-background/50 h-12" placeholder="John Doe" />
@@ -552,39 +573,43 @@ export function HomePage() {
                   </div>
                 </div>
                 
-                {uploadType === 'file' ? (
-                  <div className="space-y-1.5 pt-2">
-                    <Label>Photo or Video File *</Label>
-                    <div className="relative h-32 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center bg-background/30 hover:bg-background/60 hover:border-primary/50 transition-colors cursor-pointer overflow-hidden">
-                      <input 
-                        type="file" 
-                        accept="image/*,video/*" 
-                        required={uploadType === 'file'}
-                        onChange={(e) => setMediaFile(e.target.files[0])}
-                        ref={fileInputRef}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                      />
-                      {mediaFile ? (
-                        <div className="text-center p-4">
-                          {mediaFile.type.startsWith('video') ? <Video className="w-8 h-8 text-primary mx-auto mb-2" /> : <ImageIcon className="w-8 h-8 text-primary mx-auto mb-2" />}
-                          <p className="text-sm font-medium text-foreground truncate max-w-[200px]">{mediaFile.name}</p>
-                        </div>
-                      ) : (
-                        <div className="text-center p-4 text-muted-foreground pointer-events-none">
-                          <Upload className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                          <p className="text-sm font-medium">Click to select or drag and drop</p>
-                          <p className="text-xs mt-1 opacity-70">Images and MP4 Videos supported</p>
-                        </div>
-                      )}
-                    </div>
+                <div className="space-y-1.5 pt-2">
+                  <Label>Photo or Video File *</Label>
+                  <div className="relative h-32 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center bg-background/30 hover:bg-background/60 hover:border-primary/50 transition-colors cursor-pointer overflow-hidden">
+                    <input 
+                      type="file" 
+                      accept="image/*,video/*" 
+                      required
+                      onChange={(e) => setMediaFile(e.target.files[0])}
+                      ref={fileInputRef}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                    {mediaFile ? (
+                      <div className="text-center p-4">
+                        {mediaFile.type.startsWith('video') ? <Video className="w-8 h-8 text-primary mx-auto mb-2" /> : <ImageIcon className="w-8 h-8 text-primary mx-auto mb-2" />}
+                        <p className="text-sm font-medium text-foreground truncate max-w-[200px]">{mediaFile.name}</p>
+                      </div>
+                    ) : (
+                      <div className="text-center p-4 text-muted-foreground pointer-events-none">
+                        <Upload className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm font-medium">Click to select or drag and drop</p>
+                        <p className="text-xs mt-1 opacity-70">Images and MP4 Videos supported</p>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="space-y-1.5 pt-2">
-                    <Label>Instagram Link *</Label>
-                    <div className="relative">
-                      <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-pink-500" />
-                      <Input value={igUrl} onChange={e => setIgUrl(e.target.value)} required={uploadType === 'instagram'} className="bg-background/50 h-12 pl-10" placeholder="https://www.instagram.com/reel/..." />
-                    </div>
+                </div>
+
+                {mediaFile && mediaFile.type.startsWith('video') && (
+                  <div className="space-y-1.5 pt-2 animate-in fade-in slide-in-from-top-2">
+                    <Label>Video Category *</Label>
+                    <select 
+                      value={videoCategory}
+                      onChange={(e) => setVideoCategory(e.target.value)}
+                      className="w-full h-12 rounded-md border border-input bg-background/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    >
+                      <option value="gym">Gym Workout Video</option>
+                      <option value="trip">Gym Trip & Activity Video</option>
+                    </select>
                   </div>
                 )}
 
