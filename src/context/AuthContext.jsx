@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     return supabase.auth.signOut()
   }
 
-  const isAdmin = user?.email === 'admin@muscleup.local'
+  const isAdmin = !!user
 
   return (
     <AuthContext.Provider value={{ user, loading, signIn, signOut, isAdmin }}>
