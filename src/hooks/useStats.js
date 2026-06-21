@@ -26,7 +26,7 @@ export function useStats() {
 
       const [
         { count: totalMembers },
-        { count: activeCount },
+        {},
         { data: activeMembershipsData },
         { data: expiredMemberships },
         { data: unpaidRawData },

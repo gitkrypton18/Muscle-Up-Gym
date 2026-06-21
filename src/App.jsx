@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { AuthProvider, useAuth } from '@/context/AuthContext'

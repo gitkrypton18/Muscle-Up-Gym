@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Check, X, Image as ImageIcon, Video, UserCircle2, Loader2, Star, Upload } from 'lucide-react'
 import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
+
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 

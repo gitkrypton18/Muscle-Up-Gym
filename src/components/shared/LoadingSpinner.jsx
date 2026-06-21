@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { Dumbbell, Target } from 'lucide-react'
 import { motion } from 'framer-motion'
 
