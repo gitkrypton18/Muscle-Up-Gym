@@ -218,6 +218,8 @@ customers       (id, name, phone, whatsapp, email, gender, partner_id, is_delete
 memberships     (id, customer_id, plan_name, start_date, end_date, status, created_at)
 payments        (id, customer_id, membership_id, amount, due_amount, payment_date, mode)
 leads           (id, name, phone, interest, status, notes, created_at)
+community_media (id, uploader_name, ig_handle, media_type, url, category, status, created_at)
+testimonials    (id, user_name, content, status, created_at)
 
 -- Database Views
 active_members  → joins customers + memberships (used for CSV export & stats)
