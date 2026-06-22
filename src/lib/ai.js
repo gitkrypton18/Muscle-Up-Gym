@@ -11,7 +11,7 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 export async function generateWorkoutPlan(data) {
   try {
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-pro",
+      model: "gemini-1.5-flash",
       generationConfig: {
         responseMimeType: "application/json",
       }
