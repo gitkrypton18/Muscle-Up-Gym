@@ -10,7 +10,12 @@ const genAI = new GoogleGenerativeAI(API_KEY);
  */
 export async function generateWorkoutPlan(data) {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-1.5-pro",
+      generationConfig: {
+        responseMimeType: "application/json",
+      }
+    });
 
     // The system prompt tailored for MuscleUp Gym (Jhalawar context)
     const prompt = `
@@ -31,8 +36,7 @@ Please strictly output valid JSON ONLY, with the following structure:
     "summary": "Brief summary of the diet approach.",
     "daily_calories": 2500,
     "meals": [
-      { "time": "Breakfast", "food": "Poha with boiled eggs...", "calories": 400 },
-      ...
+      { "time": "Breakfast", "food": "Poha with boiled eggs...", "calories": 400 }
     ]
   },
   "workout_plan": {
@@ -53,8 +57,6 @@ Please strictly output valid JSON ONLY, with the following structure:
     ]
   }
 }
-
-Do not include markdown code block syntax (like \`\`\`json) in your response, just the raw JSON text.
 `;
 
     const parts = [prompt];
@@ -73,9 +75,8 @@ Do not include markdown code block syntax (like \`\`\`json) in your response, ju
     const result = await model.generateContent(parts);
     const responseText = result.response.text();
     
-    // Attempt to parse the JSON. In a production app, use robust regex or json-repair libraries.
-    const cleanJsonStr = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-    return JSON.parse(cleanJsonStr);
+    // Attempt to parse the JSON.
+    return JSON.parse(responseText);
 
   } catch (error) {
     console.error("Error generating AI plan:", error);
@@ -88,23 +89,36 @@ Do not include markdown code block syntax (like \`\`\`json) in your response, ju
  */
 export async function chatWithGymAssistant(history, message) {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
     const systemInstruction = `
 You are the AI Assistant for MuscleUp Gym. You answer fitness, diet, and gym-related queries.
 Keep your answers concise, motivating, and easy to read.
 If the user asks "how to do an exercise", provide 3-4 bulleted steps.
 `;
 
-    const chat = model.startChat({
-      history: history.map(msg => ({
-        role: msg.role === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.text }]
-      }))
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-1.5-flash",
+      systemInstruction
     });
 
-    const fullMessage = `${systemInstruction}\n\nUser: ${message}`;
-    const result = await chat.sendMessage(fullMessage);
+    // Filter out the initial greeting or any leading model messages
+    // to ensure history starts with a user message if it has history
+    let validHistory = [];
+    let foundUser = false;
+    for (const msg of history) {
+      if (msg.role === 'user') foundUser = true;
+      if (foundUser) {
+        validHistory.push({
+          role: msg.role === 'user' ? 'user' : 'model',
+          parts: [{ text: msg.text }]
+        });
+      }
+    }
+
+    const chat = model.startChat({
+      history: validHistory
+    });
+
+    const result = await chat.sendMessage(message);
     
     return result.response.text();
   } catch (error) {
