@@ -23,14 +23,14 @@ const fallbackImages = [
 ]
 
 const fallbackGymVideos = [
-  { url: '/assets/videos/SaveClip.App_AQNdYo57NUhmrV5c06Bi4nHrZLMAEhhl30fjPQpcZHFURXXATkP8qrIfYQMO8mmu9BlpR06jpcBiUT7W_EN8gdhfX4JUdluk3ptKCEY.mp4', uploader_name: 'Official', media_type: 'video', category: 'gym', ig_handle: 'muscleup.1' },
-  { url: '/assets/videos/SaveClip.App_AQPOZ667nwSQW6Nay30PugR7clxmguitE6vUXc3zE4i5JZ7vgyt96C_4f9gmLIZ-mSQC1DDEdl_WJ8KDssF0uj-EYw1vBq-dUdU_5Mo.mp4', uploader_name: 'Official', media_type: 'video', category: 'gym', ig_handle: 'muscleup.1' }
+  { url: '/assets/videos/gym/hero-bg.mp4', uploader_name: 'Official', media_type: 'video', category: 'gym', ig_handle: 'muscleup.1' },
+  { url: '/assets/videos/gym/gym-tbf3na.mp4', uploader_name: 'Official', media_type: 'video', category: 'gym', ig_handle: 'muscleup.1' }
 ]
 
 const fallbackTripVideos = [
-  { url: '/assets/videos/SaveClip.App_AQMlUc-tjTvLlNj8e1ffKFz2KJoydrwR6Hv3ATnN8vy5pdWujhXnJBebcUVUI86faYu7A4nXKx740l0eLGTdv0TxI4zQluhdQxPrODg.mp4', uploader_name: 'Official', media_type: 'video', category: 'trip', ig_handle: 'muscleup.1' },
-  { url: '/assets/videos/SaveClip.App_AQMzkL1_-QVKPC3KbqT7NwzZ3keHwGa-ORsX66eWYW2T3BPbITE4H1zSz4E2vtx7XM7vxrYZHAczLH27HBPcIMeousRDn-ffxWwFq7I.mp4', uploader_name: 'Official', media_type: 'video', category: 'trip', ig_handle: 'muscleup.1' },
-  { url: '/assets/videos/SaveClip.App_AQNdFLxPIFdiMmHA6fAgwS07eVDnp_5Gi7bBpM6MWMf18UgMhXKYAXNZGb_RCS2lO9D8NiX8vv-T0ubzzDaolGBK8AIceEgaVmAJkUw.mp4', uploader_name: 'Official', media_type: 'video', category: 'trip', ig_handle: 'muscleup.1' }
+  { url: '/assets/videos/trip/trip-1s3tva.mp4', uploader_name: 'Official', media_type: 'video', category: 'trip', ig_handle: 'muscleup.1' },
+  { url: '/assets/videos/trip/trip-87v9oc.mp4', uploader_name: 'Official', media_type: 'video', category: 'trip', ig_handle: 'muscleup.1' },
+  { url: '/assets/videos/trip/trip-hyvqme.mp4', uploader_name: 'Official', media_type: 'video', category: 'trip', ig_handle: 'muscleup.1' }
 ]
 
 const features = [
@@ -200,7 +200,7 @@ export function HomePage() {
             onEnded={() => setFirstVideoEnded(true)}
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${firstVideoEnded ? 'opacity-0' : 'opacity-100'}`}
           >
-            <source src="/assets/videos/gym/SaveClip.App_AQPOZ667nwSQW6Nay30PugR7clxmguitE6vUXc3zE4i5JZ7vgyt96C_4f9gmLIZ-mSQC1DDEdl_WJ8KDssF0uj-EYw1vBq-dUdU_5Mo.mp4" type="video/mp4" />
+            <source src="/assets/videos/gym/gym-tbf3na.mp4" type="video/mp4" />
           </video>
 
           {/* Second Video (Loops) */}
