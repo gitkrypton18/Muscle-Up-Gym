@@ -79,7 +79,7 @@ Do not include markdown code block syntax (like \`\`\`json) in your response, ju
 
   } catch (error) {
     console.error("Error generating AI plan:", error);
-    throw new Error("Failed to generate plan. Please check your API key.");
+    throw new Error(`AI Error: ${error.message}`);
   }
 }
 
