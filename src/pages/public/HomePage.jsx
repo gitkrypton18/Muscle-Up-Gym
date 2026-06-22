@@ -23,8 +23,9 @@ const fallbackImages = [
 ]
 
 const fallbackGymVideos = [
-  { url: '/assets/videos/gym/hero-bg.mp4', uploader_name: 'Official', media_type: 'video', category: 'gym', ig_handle: 'muscleup.1' },
-  { url: '/assets/videos/gym/gym-tbf3na.mp4', uploader_name: 'Official', media_type: 'video', category: 'gym', ig_handle: 'muscleup.1' }
+  { url: '/assets/videos/gym/gym-tbf3na.mp4', uploader_name: 'Official', media_type: 'video', category: 'gym', ig_handle: 'muscleup.1' },
+  { url: '/assets/videos/gym/20250527_211701.mp4', uploader_name: 'Official', media_type: 'video', category: 'gym', ig_handle: 'muscleup.1' },
+  { url: '/assets/videos/gym/20250527_211433.mp4', uploader_name: 'Official', media_type: 'video', category: 'gym', ig_handle: 'muscleup.1' }
 ]
 
 const fallbackTripVideos = [
