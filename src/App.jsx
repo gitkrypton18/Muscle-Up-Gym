@@ -27,7 +27,6 @@ import { PlansPage } from '@/pages/public/PlansPage'
 import { EnquiryPage } from '@/pages/public/EnquiryPage'
 import { AboutPage } from '@/pages/public/AboutPage'
 import { TestimonialsPage } from '@/pages/public/TestimonialsPage'
-import { AIPlannerPage } from '@/pages/public/AIPlannerPage'
 import { ScrollToTop } from '@/components/shared/ScrollToTop'
 
 const ProtectedRoute = () => {
@@ -56,7 +55,6 @@ function App() {
               <Route path="testimonials" element={<TestimonialsPage />} />
               <Route path="plans" element={<PlansPage />} />
               <Route path="enquiry" element={<EnquiryPage />} />
-              <Route path="ai-planner" element={<AIPlannerPage />} />
             </Route>
 
             {/* Admin Routes */}

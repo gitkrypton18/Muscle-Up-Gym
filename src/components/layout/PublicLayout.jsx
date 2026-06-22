@@ -4,7 +4,6 @@ import { Menu, X, Dumbbell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useGymSettings } from '@/hooks/useGymSettings'
-import AIChatbot from '@/components/shared/AIChatbot'
 
 export function PublicLayout() {
   const [isScrolled, setIsScrolled] = React.useState(false)
@@ -25,7 +24,6 @@ export function PublicLayout() {
     { name: 'About', path: '/about' },
     { name: 'Plans', path: '/plans' },
     { name: 'Reviews', path: '/testimonials' },
-    { name: 'AI Planner', path: '/ai-planner' },
     { name: 'Enquiry', path: '/enquiry' },
   ]
 
@@ -196,8 +194,7 @@ export function PublicLayout() {
         </a>
       )}
       
-      {/* AI Chatbot */}
-      <AIChatbot />
+      {/* Floating WhatsApp Button */}
     </div>
   )
 }
